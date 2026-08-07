@@ -1,12 +1,12 @@
 spring:
   application:
-    name: ecommerce
+    name: e-commerce
   
   # PostgreSQL Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/ecommerce
+    url: jdbc:postgresql://localhost:5434/e-commerce
     username: postgres
-    password: password
+    password: 123456
     driver-class-name: org.postgresql.Driver
     
   # JPA/Hibernate Configuration

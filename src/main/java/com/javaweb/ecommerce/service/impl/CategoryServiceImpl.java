@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired
+
     private final CategoryRepository categoryRepository;
 
     @Override
@@ -29,14 +29,22 @@ public class CategoryServiceImpl implements CategoryService {
                 .slug(categoryRequest.slug())
                 .build();
         Category saved = categoryRepository.save(category);
-        return new CategoryResponse(saved.getId(), saved.getName(), saved.getSlug());
+        return CategoryResponse.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .slug(saved.getSlug())
+                .build();
     }
 
     @Override
     public List<CategoryResponse> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
-                .map(category -> new CategoryResponse(category.getId(), category.getName(), category.getSlug()))
+                .map(category -> CategoryResponse.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .slug(category.getSlug())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -44,7 +52,11 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse getCategoryById(UUID id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
-        return new CategoryResponse(category.getId(), category.getName(), category.getSlug());
+        return CategoryResponse.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .slug(category.getSlug())
+                .build();
     }
 
     @Override
@@ -54,7 +66,11 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(categoryRequest.name());
         category.setSlug(categoryRequest.slug());
         Category updated = categoryRepository.save(category);
-        return new CategoryResponse(updated.getId(), updated.getName(), updated.getSlug());
+        return CategoryResponse.builder()
+                .id(updated.getId())
+                .name(updated.getName())
+                .slug(updated.getSlug())
+                .build();
     }
 
     @Override

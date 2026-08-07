@@ -1,14 +1,14 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: ecommerce-postgres
     ports:
-      - "5432:5432"
+      - "5434:5432"
     environment:
-      POSTGRES_DB: ecommerce
+      POSTGRES_DB: e-commerce
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: 123456
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

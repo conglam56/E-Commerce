@@ -1,0 +1,17 @@
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\dto\record\request\ProductRequest.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\entity\Product.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\service\ProductService.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\entity\enums\CategoryStatus.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\dto\record\response\ProductResponse.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\entity\Category.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\dto\record\request\CategoryRequest.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\EcommerceApplication.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\entity\enums\ProductStatus.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\service\CategoryService.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\service\impl\ProductServiceImpl.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\repository\CategoryRepository.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\dto\record\response\CategoryResponse.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\repository\ProductRepository.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\controller\CategoryController.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\service\impl\CategoryServiceImpl.java
+D:\E-Commerce\src\main\java\com\javaweb\ecommerce\mapper\ProductMapper.java
