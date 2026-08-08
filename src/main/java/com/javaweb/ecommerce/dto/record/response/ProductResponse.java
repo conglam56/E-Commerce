@@ -7,11 +7,11 @@ import lombok.Builder;
 
 @Builder
 public record ProductResponse(
-        UUID id,
-        String name,
-        Integer quantity,
-        String description,
-        String imageUrl,
-        BigDecimal price,
-        String categoryName) {
+                UUID id,
+                String name,
+                Integer quantity,
+                String description,
+                String imageUrl,
+                BigDecimal price,
+                CategoryResponse category) {
 }
