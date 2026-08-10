@@ -3,6 +3,8 @@ package com.javaweb.ecommerce.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.javaweb.ecommerce.dto.record.request.CategoryRequest;
@@ -12,7 +14,7 @@ import com.javaweb.ecommerce.dto.record.response.CategoryResponse;
 public interface CategoryService {
     CategoryResponse createCategory(CategoryRequest categoryRequest);
 
-    List<CategoryResponse> getAllCategories();
+    Page<CategoryResponse> getAllCategories(Pageable pageable);
 
     CategoryResponse getCategoryById(UUID id);
 

@@ -5,6 +5,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.javaweb.ecommerce.dto.record.request.CategoryRequest;
@@ -32,11 +34,9 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         @Override
-        public List<CategoryResponse> getAllCategories() {
-                List<Category> categories = categoryRepository.findAll();
-                return categories.stream()
-                                .map(categoryMapper::toCategoryResponse)
-                                .collect(Collectors.toList());
+        public Page<CategoryResponse> getAllCategories(Pageable pageable) {
+                Page<Category> categories = categoryRepository.findAll(pageable);
+                return categories.map(categoryMapper::toCategoryResponse);
         }
 
         @Override
@@ -50,8 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
         public CategoryResponse updateCategory(UUID id, CategoryRequest categoryRequest) {
                 Category category = categoryRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
-                category.setName(categoryRequest.name());
-                category.setSlug(categoryRequest.slug());
+                categoryMapper.updateCategory(categoryRequest, category);
                 Category updated = categoryRepository.save(category);
                 return categoryMapper.toCategoryResponse(updated);
         }

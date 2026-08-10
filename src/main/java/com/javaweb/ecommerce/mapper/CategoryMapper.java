@@ -3,6 +3,8 @@ package com.javaweb.ecommerce.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Mappings;
 
 import com.javaweb.ecommerce.dto.record.request.CategoryRequest;
 import com.javaweb.ecommerce.dto.record.response.CategoryResponse;
@@ -14,4 +16,9 @@ public interface CategoryMapper {
     Category toCategory(CategoryRequest categoryRequest);
 
     CategoryResponse toCategoryResponse(Category category);
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true)
+    })
+    void updateCategory(CategoryRequest categoryRequest, @MappingTarget Category category);
 }

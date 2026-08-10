@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.javaweb.ecommerce.dto.record.request.ProductRequest;
@@ -39,12 +41,11 @@ public class ProductServiceImpl implements ProductService {
                 Product product = productRepository.findById(id).orElseThrow(
                                 () -> new RuntimeException("Product not found with id: " + id));
 
-                Product updatedProduct = productMapper.toProduct(productRequest);
-                updatedProduct.setCategory(categoryRepository.findById(productRequest.categoryId()).orElseThrow(
+                productMapper.updateProduct(productRequest, product);
+                product.setCategory(categoryRepository.findById(productRequest.categoryId()).orElseThrow(
                                 () -> new RuntimeException(
                                                 "Category not found with id: " + productRequest.categoryId())));
-
-                Product saved = productRepository.save(updatedProduct);
+                Product saved = productRepository.save(product);
                 return productMapper.toProductResponse(saved);
         }
 
@@ -56,9 +57,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         @Override
-        public List<ProductResponse> getAllProducts() {
-                List<Product> products = productRepository.findAll();
-                return products.stream().map(productMapper::toProductResponse).collect(Collectors.toList());
+        public Page<ProductResponse> getAllProducts(Pageable pageable) {
+                Page<Product> products = productRepository.findAll(pageable);
+                return products.map(productMapper::toProductResponse);
         }
 
         @Override
