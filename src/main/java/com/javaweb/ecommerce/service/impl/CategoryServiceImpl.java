@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         @Override
         public Page<CategoryResponse> getAllCategories(Pageable pageable) {
-                Page<Category> categories = categoryRepository.findAll(pageable);
+                Page<Category> categories = categoryRepository.findByStatus(CategoryStatus.ACTIVE, pageable);
                 return categories.map(categoryMapper::toCategoryResponse);
         }
 

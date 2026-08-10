@@ -58,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
 
         @Override
         public Page<ProductResponse> getAllProducts(Pageable pageable) {
-                Page<Product> products = productRepository.findAll(pageable);
+                Page<Product> products = productRepository.findAllProducts(pageable);
                 return products.map(productMapper::toProductResponse);
         }
 
