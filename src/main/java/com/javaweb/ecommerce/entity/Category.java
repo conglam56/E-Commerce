@@ -7,6 +7,7 @@ import com.javaweb.ecommerce.entity.enums.CategoryStatus;
 
 import java.util.ArrayList;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,7 +38,7 @@ public class Category {
     @Column(length = 255)
     @Enumerated(EnumType.STRING)
     private CategoryStatus status;
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Product> products = new ArrayList<>();
 }

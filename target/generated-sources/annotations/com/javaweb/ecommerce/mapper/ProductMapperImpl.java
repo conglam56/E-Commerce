@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-10T20:40:24+0700",
+    date = "2026-08-30T21:40:34+0700",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.45.0.v20260224-0835, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
@@ -24,11 +24,11 @@ public class ProductMapperImpl implements ProductMapper {
 
         Product.ProductBuilder product = Product.builder();
 
-        product.name( productRequest.name() );
-        product.quantity( productRequest.quantity() );
         product.description( productRequest.description() );
         product.imageUrl( productRequest.imageUrl() );
+        product.name( productRequest.name() );
         product.price( productRequest.price() );
+        product.quantity( productRequest.quantity() );
 
         return product.build();
     }
@@ -41,13 +41,13 @@ public class ProductMapperImpl implements ProductMapper {
 
         ProductResponse.ProductResponseBuilder productResponse = ProductResponse.builder();
 
-        productResponse.id( product.getId() );
-        productResponse.name( product.getName() );
-        productResponse.quantity( product.getQuantity() );
-        productResponse.description( product.getDescription() );
-        productResponse.imageUrl( product.getImageUrl() );
-        productResponse.price( product.getPrice() );
         productResponse.category( categoryToCategoryResponse( product.getCategory() ) );
+        productResponse.description( product.getDescription() );
+        productResponse.id( product.getId() );
+        productResponse.imageUrl( product.getImageUrl() );
+        productResponse.name( product.getName() );
+        productResponse.price( product.getPrice() );
+        productResponse.quantity( product.getQuantity() );
 
         return productResponse.build();
     }
@@ -58,11 +58,11 @@ public class ProductMapperImpl implements ProductMapper {
             return;
         }
 
-        product.setName( productRequest.name() );
-        product.setQuantity( productRequest.quantity() );
         product.setDescription( productRequest.description() );
         product.setImageUrl( productRequest.imageUrl() );
+        product.setName( productRequest.name() );
         product.setPrice( productRequest.price() );
+        product.setQuantity( productRequest.quantity() );
     }
 
     protected CategoryResponse categoryToCategoryResponse(Category category) {
