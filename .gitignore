@@ -1,0 +1,23 @@
+# Build
+target/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Bí mật (bắt buộc)
+.env
+.env.*
+!.env.example
+application-local.properties
+application-local.yml
+
+# IDE và hệ điều hành
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+
+# Skill bên thứ ba (cài lại được)
+.agents/skills/
