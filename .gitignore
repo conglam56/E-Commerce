@@ -21,3 +21,9 @@ Thumbs.db
 
 # Skill bên thứ ba (cài lại được)
 .agents/skills/
+
+# Workflows & cấu hình cá nhân
+.agents/workflows/
+plan/
+AGENTS.md
+skills-lock.json
