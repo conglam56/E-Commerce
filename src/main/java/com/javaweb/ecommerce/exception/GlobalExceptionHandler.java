@@ -1,7 +1,11 @@
 package com.javaweb.ecommerce.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
@@ -21,5 +25,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ApiResponse<Object> handleRuntimeException(RuntimeException ex) {
         return ApiResponse.error(500, ex.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Object> handleBadCredentialsException(BadCredentialsException ex) {
+        return ApiResponse.error(401, "Email hoặc mật khẩu không chính xác");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        return ApiResponse.error(403, "Bạn không có quyền thực hiện thao tác này");
     }
 }

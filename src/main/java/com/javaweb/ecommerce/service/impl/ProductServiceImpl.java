@@ -32,6 +32,7 @@ public class ProductServiceImpl implements ProductService {
                 product.setCategory(categoryRepository.findById(productRequest.categoryId()).orElseThrow(
                                 () -> new RuntimeException(
                                                 "Category not found with id: " + productRequest.categoryId())));
+                product.setStatus(ProductStatus.ACTIVE);
                 Product saved = productRepository.save(product);
                 return productMapper.toProductResponse(saved);
         }
