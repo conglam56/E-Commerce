@@ -24,3 +24,4 @@ public interface OrderService {
 
     OrderResponse updateOrderStatus(UUID orderId, OrderStatus status);
 }
+

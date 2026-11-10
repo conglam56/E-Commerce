@@ -9,3 +9,4 @@ public record UpdateOrderStatusRequest(
         OrderStatus status) {
 
 }
+
