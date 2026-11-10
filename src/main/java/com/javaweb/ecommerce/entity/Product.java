@@ -40,4 +40,9 @@ public class Product {
     @Column(length = 255)
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    @Builder.Default
+    private Integer version = 0;
 }

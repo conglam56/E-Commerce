@@ -1,12 +1,15 @@
 package com.javaweb.ecommerce.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import jakarta.persistence.OptimisticLockException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,5 +53,23 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiResponse<Object> handleInsufficientStockException(InsufficientStockException ex) {
         return ApiResponse.error(400, ex.getMessage());
+    }
+
+    @ExceptionHandler(EmptyCartException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Object> handleEmptyCartException(EmptyCartException ex) {
+        return ApiResponse.error(400, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidOrderStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Object> handleInvalidOrderStateException(InvalidOrderStateException ex) {
+        return ApiResponse.error(400, ex.getMessage());
+    }
+
+    @ExceptionHandler({ ObjectOptimisticLockingFailureException.class, OptimisticLockException.class })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResponse<Object> handleOptimisticLockingFailureException(Exception ex) {
+        return ApiResponse.error(409, "Sản phẩm đang có người khác đặt mua cùng lúc, vui lòng thử lại!");
     }
 }
