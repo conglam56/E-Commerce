@@ -27,6 +27,7 @@ import com.javaweb.ecommerce.entity.CartItem;
 import com.javaweb.ecommerce.entity.Product;
 import com.javaweb.ecommerce.entity.User;
 import com.javaweb.ecommerce.exception.InsufficientStockException;
+import com.javaweb.ecommerce.exception.ResourceNotFoundException;
 import com.javaweb.ecommerce.mapper.CartMapper;
 import com.javaweb.ecommerce.mapper.CartMapperImpl;
 import com.javaweb.ecommerce.mapper.CartItemMapperImpl;
@@ -137,5 +138,30 @@ class CartServiceImplTest {
         assertThrows(InsufficientStockException.class,
                 () -> cartService.updateItemQuantity(itemId, 10));
         assertEquals(2, cart.getItems().get(0).getQuantity());
+    }
+
+    @Test
+    void addItem_productNotFound_throwsResourceNotFound() {
+        UUID nonExistentProductId = UUID.randomUUID();
+        when(productRepository.findById(nonExistentProductId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> cartService.addItemToCart(new CartItemRequest(nonExistentProductId, 1)));
+    }
+
+    @Test
+    void updateQuantity_itemNotFound_throwsResourceNotFound() {
+        UUID nonExistentItemId = UUID.randomUUID();
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> cartService.updateItemQuantity(nonExistentItemId, 3));
+    }
+
+    @Test
+    void removeItem_itemNotFound_throwsResourceNotFound() {
+        UUID nonExistentItemId = UUID.randomUUID();
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> cartService.removeItemFromCart(nonExistentItemId));
     }
 }

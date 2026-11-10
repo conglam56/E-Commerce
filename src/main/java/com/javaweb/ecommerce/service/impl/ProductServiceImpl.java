@@ -12,6 +12,7 @@ import com.javaweb.ecommerce.dto.record.request.ProductRequest;
 import com.javaweb.ecommerce.dto.record.response.ProductResponse;
 import com.javaweb.ecommerce.entity.Product;
 import com.javaweb.ecommerce.entity.enums.ProductStatus;
+import com.javaweb.ecommerce.exception.ResourceNotFoundException;
 import com.javaweb.ecommerce.mapper.ProductMapper;
 import com.javaweb.ecommerce.repository.CategoryRepository;
 import com.javaweb.ecommerce.repository.ProductRepository;
@@ -30,8 +31,7 @@ public class ProductServiceImpl implements ProductService {
         public ProductResponse createProduct(ProductRequest productRequest) {
                 Product product = productMapper.toProduct(productRequest);
                 product.setCategory(categoryRepository.findById(productRequest.categoryId()).orElseThrow(
-                                () -> new RuntimeException(
-                                                "Category not found with id: " + productRequest.categoryId())));
+                                () -> new ResourceNotFoundException("Danh mục", productRequest.categoryId())));
                 product.setStatus(ProductStatus.ACTIVE);
                 Product saved = productRepository.save(product);
                 return productMapper.toProductResponse(saved);
@@ -40,12 +40,11 @@ public class ProductServiceImpl implements ProductService {
         @Override
         public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
                 Product product = productRepository.findById(id).orElseThrow(
-                                () -> new RuntimeException("Product not found with id: " + id));
+                                () -> new ResourceNotFoundException("Sản phẩm", id));
 
                 productMapper.updateProduct(productRequest, product);
                 product.setCategory(categoryRepository.findById(productRequest.categoryId()).orElseThrow(
-                                () -> new RuntimeException(
-                                                "Category not found with id: " + productRequest.categoryId())));
+                                () -> new ResourceNotFoundException("Danh mục", productRequest.categoryId())));
                 Product saved = productRepository.save(product);
                 return productMapper.toProductResponse(saved);
         }
@@ -53,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
         @Override
         public ProductResponse getProductById(UUID id) {
                 Product product = productRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", id));
                 return productMapper.toProductResponse(product);
         }
 
@@ -66,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
         @Override
         public void deleteProduct(UUID id) {
                 Product product = productRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", id));
                 product.setStatus(ProductStatus.DELETED);
                 productRepository.save(product);
         }

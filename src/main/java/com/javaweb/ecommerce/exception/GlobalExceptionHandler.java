@@ -15,11 +15,18 @@ import com.javaweb.ecommerce.common.ApiResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiResponse<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         return ApiResponse.errorList(400, "Validation errors", errors);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponse<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        return ApiResponse.error(404, ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

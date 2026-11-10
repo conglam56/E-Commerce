@@ -14,6 +14,7 @@ import com.javaweb.ecommerce.entity.CartItem;
 import com.javaweb.ecommerce.entity.Product;
 import com.javaweb.ecommerce.entity.User;
 import com.javaweb.ecommerce.exception.InsufficientStockException;
+import com.javaweb.ecommerce.exception.ResourceNotFoundException;
 import com.javaweb.ecommerce.mapper.CartMapper;
 import com.javaweb.ecommerce.repository.CartRepository;
 import com.javaweb.ecommerce.repository.ProductRepository;
@@ -42,7 +43,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByUser_Id(user.getId())
                 .orElseGet(() -> cartRepository.save(Cart.builder().user(user).build()));
         Product product = productRepository.findById(request.productId())
-                .orElseThrow(() -> new RuntimeException("Sản phẩm không hợp lệ"));
+                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", request.productId()));
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId())).findFirst();
         int totalQuantity = request.quantity();
@@ -79,7 +80,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByUser_Id(user.getId())
                 .orElseGet(() -> cartRepository.save(Cart.builder().user(user).build()));
         CartItem item = cart.getItems().stream().filter(i -> i.getId().equals(itemId)).findFirst()
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mục giỏ hàng", itemId));
         cart.getItems().remove(item);
         cartRepository.save(cart);
         return cartMapper.toCartResponse(cart);
@@ -91,7 +92,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByUser_Id(user.getId())
                 .orElseGet(() -> cartRepository.save(Cart.builder().user(user).build()));
         CartItem item = cart.getItems().stream().filter(i -> i.getId().equals(itemId)).findFirst()
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mục giỏ hàng", itemId));
         if (quantity <= 0) {
             cart.getItems().remove(item);
         } else {

@@ -13,6 +13,7 @@ import com.javaweb.ecommerce.dto.record.request.CategoryRequest;
 import com.javaweb.ecommerce.dto.record.response.CategoryResponse;
 import com.javaweb.ecommerce.entity.Category;
 import com.javaweb.ecommerce.entity.enums.CategoryStatus;
+import com.javaweb.ecommerce.exception.ResourceNotFoundException;
 import com.javaweb.ecommerce.mapper.CategoryMapper;
 import com.javaweb.ecommerce.repository.CategoryRepository;
 import com.javaweb.ecommerce.service.CategoryService;
@@ -42,14 +43,14 @@ public class CategoryServiceImpl implements CategoryService {
         @Override
         public CategoryResponse getCategoryById(UUID id) {
                 Category category = categoryRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Danh mục", id));
                 return categoryMapper.toCategoryResponse(category);
         }
 
         @Override
         public CategoryResponse updateCategory(UUID id, CategoryRequest categoryRequest) {
                 Category category = categoryRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Danh mục", id));
                 categoryMapper.updateCategory(categoryRequest, category);
                 Category updated = categoryRepository.save(category);
                 return categoryMapper.toCategoryResponse(updated);
@@ -58,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
         @Override
         public void deleteCategory(UUID id) {
                 Category category = categoryRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Danh mục", id));
                 category.setStatus(CategoryStatus.INACTIVE);
                 categoryRepository.save(category);
         }
