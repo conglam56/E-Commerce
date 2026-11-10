@@ -4,9 +4,9 @@ spring:
   
   # PostgreSQL Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5434/e-commerce
-    username: postgres
-    password: 123456
+    url: ${DB_URL:jdbc:postgresql://localhost:5434/e-commerce}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     
   # JPA/Hibernate Configuration
@@ -25,5 +25,5 @@ spring:
     enabled: true
     baseline-on-migrate: true
 jwt:
-  secret: WRbz0BFzbFNdUvHcM9vk6KKtsM2bULDFXenD8zFIKUR
-  expiration: 3600000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}

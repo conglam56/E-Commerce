@@ -38,4 +38,10 @@ public class GlobalExceptionHandler {
     public ApiResponse<Object> handleAccessDeniedException(AccessDeniedException ex) {
         return ApiResponse.error(403, "Bạn không có quyền thực hiện thao tác này");
     }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Object> handleInsufficientStockException(InsufficientStockException ex) {
+        return ApiResponse.error(400, ex.getMessage());
+    }
 }
