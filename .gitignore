@@ -20,6 +20,8 @@ Thumbs.db
 *.log
 
 # Skill bên thứ ba (cài lại được)
+.agent/
+.agents/
 .agents/skills/
 
 # Workflows & cấu hình cá nhân

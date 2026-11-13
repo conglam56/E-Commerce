@@ -24,6 +24,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,6 +54,11 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private OrderStatus status;
+
+    @Version
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer version = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, length = 50)

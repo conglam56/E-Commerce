@@ -18,7 +18,7 @@ public interface OrderMapper {
     default String generatePaymentInstruction(Order order) {
         if (order.getPaymentMethod() == PaymentMethod.BANK_TRANSFER) {
             return String.format(
-                    "Vui lòng chuyển khoản số tiền %s VNĐ vào STK: 123456789 - Ngân hàng MBBank. Nội dung CK: DH %s",
+                    "Chuyển khoản MBBank (mô phỏng), số tiền %s VNĐ, mã đơn %s. Demo không yêu cầu chuyển tiền.",
                     order.getTotalAmount().toPlainString(),
                     order.getId().toString().substring(0, 8).toUpperCase());
         }

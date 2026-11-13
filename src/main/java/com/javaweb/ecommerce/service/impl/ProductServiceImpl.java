@@ -57,8 +57,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         @Override
-        public Page<ProductResponse> getAllProducts(Pageable pageable) {
-                Page<Product> products = productRepository.findAllProducts(pageable);
+        public Page<ProductResponse> getAllProducts(UUID categoryId, String keyword, Pageable pageable) {
+                String pattern = "%" + keyword.strip().replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+                Page<Product> products = productRepository.findAllProducts(categoryId, pattern, pageable);
                 return products.map(productMapper::toProductResponse);
         }
 

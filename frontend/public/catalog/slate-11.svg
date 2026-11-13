@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+<defs><linearGradient id="glass" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#b5b7dc"/><stop offset="1" stop-color="#46426b"/>
+    </linearGradient>
+    <linearGradient id="ribbon" x1="0" x2="1" y1="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop stop-color="#46426b"/><stop offset="1" stop-color="#8c81bc"/>
+    </linearGradient></defs>
+<ellipse cx="320" cy="402" rx="205.79999999999998" ry="15" fill="#223746" opacity=".12"/>
+    <g transform="rotate(-7 320 238)">
+      <rect x="110" y="99" width="420" height="278" rx="19" fill="#222d35" stroke="#8e9da6" stroke-width="4"/>
+      <svg x="121" y="110" width="398" height="256" viewBox="0 0 400 280" preserveAspectRatio="none" overflow="hidden">
+      <rect width="400" height="280" rx="11" fill="url(#glass)"/>
+      <path d="M-32 294C91 272 130 122 236 103S356 132 431 27v273z" fill="url(#ribbon)"/>
+      <path d="M-18 293C111 273 160 174 247 163s149 18 196-74v211z" fill="#fff" opacity=".14"/>
+    </svg>
+      <circle cx="320" cy="104.5" r="2.3" fill="#657688"/>
+    </g>
+</svg>

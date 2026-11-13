@@ -27,11 +27,11 @@ public class AuthServiceImpl implements AuthService {
         @Override
         public AuthResponse register(RegisterRequest registerRequest) {
                 if (!registerRequest.password().equals(registerRequest.confirmPassword())) {
-                        throw new RuntimeException("Mật khẩu và xác nhận mật khẩu không khớp");
+                        throw new IllegalArgumentException("Mật khẩu và xác nhận mật khẩu không khớp");
                 }
                 userRepository.findByEmail(registerRequest.email())
                                 .ifPresent(user -> {
-                                        throw new RuntimeException("Email đã tồn tại");
+                                        throw new IllegalStateException("Email đã tồn tại");
                                 });
 
                 User user = User.builder()

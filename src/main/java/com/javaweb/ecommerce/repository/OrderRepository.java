@@ -22,10 +22,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @EntityGraph(attributePaths = { "items", "items.product" })
     List<Order> findByUser_IdOrderByCreatedAtDesc(UUID userId);
 
-    @EntityGraph(attributePaths = { "items", "items.product", "user" })
+    @EntityGraph(attributePaths = { "user" })
     Page<Order> findByStatusOrderByCreatedAtDesc(OrderStatus status, Pageable pageable);
 
-    @EntityGraph(attributePaths = { "items", "items.product", "user" })
+    @EntityGraph(attributePaths = { "user" })
     Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }
 

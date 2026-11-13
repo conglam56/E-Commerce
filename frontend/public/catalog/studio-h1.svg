@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+<defs>
+<linearGradient id="band" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#80939d"/><stop offset="1" stop-color="#3c5362"/></linearGradient>
+<linearGradient id="shell" x2="1" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#718692"/><stop offset=".56" stop-color="#3e5564"/><stop offset="1" stop-color="#253845"/></linearGradient></defs>
+<ellipse cx="320" cy="425" rx="148" ry="15" fill="#163345" opacity=".12"/>
+<g transform="rotate(-12 320 242)">
+  <path d="M182 287v-67c0-91 58-153 138-153s138 62 138 153v67" fill="none" stroke="#233544" stroke-width="26"/>
+  <path d="M182 248v-28c0-91 58-153 138-153s138 62 138 153v28" fill="none" stroke="url(#band)" stroke-width="17"/>
+  <path d="M210 148c20-48 62-72 110-72s90 24 110 72" fill="none" stroke="#405764" stroke-width="12" stroke-linecap="round"/>
+  <path d="M183 254v70m274-70v70" stroke="#a46f54" stroke-width="11" stroke-linecap="round"/>
+  <g transform="rotate(-10 201 321)">
+    <rect x="152" y="248" width="92" height="150" rx="43" fill="url(#shell)" stroke="#192b38" stroke-width="3"/>
+    <path d="M203 251c18 8 31 26 31 50v48c0 21-12 40-30 47h17c28-7 42-23 42-53v-45c0-25-19-43-45-47z" fill="#4b626e"/>
+    <path d="M172 289c4-14 13-23 23-27" fill="none" stroke="#9eb0b5" stroke-width="3" opacity=".55"/>
+  </g>
+  <g transform="rotate(10 439 321)">
+    <rect x="395" y="248" width="92" height="150" rx="43" fill="url(#shell)" stroke="#192b38" stroke-width="3"/>
+    <path d="M437 251c-18 8-31 26-31 50v48c0 21 12 40 30 47h-17c-28-7-42-23-42-53v-45c0-25 19-43 45-47z" fill="#4b626e"/>
+    <path d="M459 285c-3-12-10-20-21-24" fill="none" stroke="#9eb0b5" stroke-width="3" opacity=".55"/>
+    <circle cx="450" cy="372" r="3" fill="#e3a17c"/>
+  </g>
+</g>
+</svg>
