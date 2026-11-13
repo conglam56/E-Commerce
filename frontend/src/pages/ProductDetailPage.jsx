@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   ShoppingCart,
-  ShieldCheck,
-  PackageCheck,
   AlertCircle,
   CheckCircle2,
   Minus,
@@ -12,12 +10,14 @@ import {
 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import { useAuth } from '../context/AuthContext';
-import { formatCurrencyVND, resolveProductImage } from '../utils/format';
+import ProductImage from '../components/ProductImage';
+import { formatCurrencyVND } from '../utils/format';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, setCart } = useAuth();
+  const { isAuthenticated, cart, setCart, loadingCart } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -25,62 +25,90 @@ export default function ProductDetailPage() {
   const [error, setError] = useState('');
   const [feedback, setFeedback] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [reloadCount, setReloadCount] = useState(0);
+  const submittingRef = useRef(false);
 
   useEffect(() => {
+    let active = true;
     setLoading(true);
+    setError('');
+    setProduct(null);
+    setFeedback(null);
+    setQuantity(1);
+
     axiosClient
       .get(`/products/${id}`)
       .then((res) => {
-        setProduct(res?.data || null);
+        if (active) setProduct(res.data);
       })
       .catch((err) => {
-        setError(err.message || 'Không tìm thấy sản phẩm.');
+        if (active) setError(err.message || 'Không tải được sản phẩm.');
       })
-      .finally(() => setLoading(false));
-  }, [id]);
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [id, reloadCount]);
+
+  const stock = Number(product?.quantity || 0);
+  const outOfStock = stock <= 0;
+  const inCart = (cart?.items || [])
+    .filter((item) => item.productId === id)
+    .reduce((sum, item) => sum + item.quantity, 0);
+  const availableQuantity = Math.max(0, stock - inCart);
+  const selectedQuantity = Math.min(quantity, availableQuantity);
+  const purchaseDisabled = outOfStock || selectedQuantity < 1 || submitting || loadingCart;
 
   const handleAddToCart = async (buyNow = false) => {
+    if (submittingRef.current || purchaseDisabled) return;
+
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/login', { state: { from: location } });
       return;
     }
+
+    submittingRef.current = true;
     setFeedback(null);
     setSubmitting(true);
     try {
       const res = await axiosClient.post('/cart/items', {
         productId: product.id,
-        quantity,
+        quantity: selectedQuantity,
       });
-      if (res?.data) {
-        setCart(res.data);
-      }
+      setCart(res.data);
       if (buyNow) {
         navigate('/cart');
       } else {
         setFeedback({
           type: 'success',
-          message: `Đã thêm ${quantity} "${product.name}" vào giỏ hàng.`,
+          message: `Đã thêm ${selectedQuantity} sản phẩm vào giỏ hàng.`,
         });
       }
     } catch (err) {
       setFeedback({
         type: 'error',
-        message: err.message || 'Số lượng vượt quá tồn kho.',
+        message: err.message || 'Không thể thêm sản phẩm. Hãy thử lại.',
       });
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        <div className="bg-white border border-slate-200 rounded-2xl p-8 animate-pulse grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="aspect-4/3 bg-slate-200 rounded-xl" />
-          <div className="space-y-4">
-            <div className="h-6 bg-slate-200 rounded w-2/3" />
-            <div className="h-8 bg-slate-200 rounded w-1/2" />
-            <div className="h-20 bg-slate-100 rounded" />
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8" role="status">
+        <span className="sr-only">Đang tải sản phẩm…</span>
+        <div aria-hidden="true" className="grid gap-6 md:grid-cols-2 lg:gap-12">
+          <div className="aspect-square rounded-lg border border-slate-200 bg-white" />
+          <div className="space-y-5 py-4">
+            <div className="h-4 w-24 rounded bg-slate-200" />
+            <div className="h-8 w-3/4 rounded bg-slate-200" />
+            <div className="h-7 w-1/2 rounded bg-slate-200" />
+            <div className="h-24 rounded bg-slate-100" />
           </div>
         </div>
       </div>
@@ -89,151 +117,143 @@ export default function ProductDetailPage() {
 
   if (error || !product) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-12 text-center space-y-4">
-        <p className="text-lg font-semibold text-slate-900">
-          {error || 'Sản phẩm không tồn tại'}
-        </p>
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold"
-        >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          Quay lại danh sách sản phẩm
-        </Link>
+      <div className="mx-auto max-w-2xl space-y-4 px-4 py-16 text-center">
+        <h1 className="text-xl font-bold text-[#193d57]">Chưa tải được sản phẩm</h1>
+        <p role="alert" className="text-sm text-slate-600">{error || 'Sản phẩm không tồn tại.'}</p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setReloadCount((count) => count + 1)}
+            className="min-h-11 cursor-pointer rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white hover:bg-[#285372]"
+          >
+            Thử lại
+          </button>
+          <Link to="/" className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-[#193d57] underline underline-offset-4">
+            Về danh mục
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const stock = Number(product.quantity || 0);
-  const outOfStock = stock <= 0;
-
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <Link
-        to="/"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
-      >
-        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+    <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:space-y-7 sm:px-6 sm:py-8 lg:px-8">
+      <Link to="/" className="inline-flex min-h-10 items-center gap-2 text-sm text-slate-600 hover:text-[#193d57] hover:underline">
+        <ArrowLeft className="size-4" aria-hidden="true" />
         Danh mục sản phẩm
       </Link>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        <div className="aspect-4/3 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-          <img
-            src={resolveProductImage(product.imageUrl, product.name)}
+      <div className="grid items-start gap-6 md:grid-cols-2 lg:gap-14">
+        <div className="aspect-4/3 overflow-hidden rounded-lg border border-slate-200 bg-white md:aspect-square">
+          <ProductImage
+            imageUrl={product.imageUrl}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="size-full object-contain p-5 sm:p-10"
           />
         </div>
 
-        <div className="space-y-5">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold">
-                {product.category?.name || 'Phần cứng'}
-              </span>
-              <span
-                className={`font-mono-num px-2.5 py-1 rounded-md text-xs font-bold ${
-                  outOfStock
-                    ? 'bg-red-100 text-red-700'
-                    : stock <= 5
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'bg-emerald-100 text-emerald-800'
-                }`}
-              >
-                {outOfStock ? 'Hết hàng' : `Tồn kho: ${stock} máy`}
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-slate-900">
-              {product.name}
-            </h1>
-            <p className="font-mono-num text-2xl sm:text-3xl font-bold text-blue-600">
+        <div className="min-w-0 space-y-6 md:py-2">
+          <div>
+            <p className="mb-2 text-sm text-slate-600">{product.category?.name || 'Thiết bị'}</p>
+            <h1 className="text-3xl leading-tight font-bold text-[#162c3c] lg:text-4xl">{product.name}</h1>
+            <p className="mt-4 text-2xl font-bold text-[#193d57] tabular-nums sm:text-3xl">
               {formatCurrencyVND(product.price)}
+            </p>
+            <p className={`mt-2 text-sm ${outOfStock ? 'text-slate-600' : 'text-emerald-800'}`}>
+              {outOfStock ? 'Tạm hết hàng' : `Còn ${stock} sản phẩm`}
             </p>
           </div>
 
-          <p className="text-sm text-slate-600 leading-relaxed border-t border-b border-slate-100 py-4">
-            {product.description || 'Thiết bị công nghệ chính hãng, nguyên seal.'}
-          </p>
-
-          {feedback && (
-            <div
-              role="alert"
-              className={`p-3.5 rounded-xl border flex items-start gap-2.5 text-sm ${
-                feedback.type === 'success'
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                  : 'bg-red-50 border-red-200 text-red-700'
-              }`}
-            >
-              {feedback.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
-              ) : (
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
-              )}
-              <span>{feedback.message}</span>
-            </div>
+          {product.description && (
+            <section aria-labelledby="product-description" className="space-y-2 border-y border-slate-200 py-5">
+              <h2 id="product-description" className="text-sm font-semibold text-slate-900">Về sản phẩm</h2>
+              <p className="max-w-prose text-sm leading-relaxed whitespace-pre-line text-slate-600">
+                {product.description}
+              </p>
+            </section>
           )}
 
-          {!outOfStock && (
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-slate-700">Số lượng:</span>
-              <div className="inline-flex items-center rounded-lg border border-slate-300 bg-slate-50">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  aria-label="Giảm số lượng"
-                  className="p-2 text-slate-700 hover:bg-slate-200 rounded-l-lg cursor-pointer"
-                >
-                  <Minus className="w-4 h-4" aria-hidden="true" />
-                </button>
-                <span className="font-mono-num px-4 py-1.5 text-sm font-bold text-slate-900">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.min(stock, q + 1))}
-                  aria-label="Tăng số lượng"
-                  className="p-2 text-slate-700 hover:bg-slate-200 rounded-r-lg cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" aria-hidden="true" />
-                </button>
+          <div className="space-y-4">
+            {!outOfStock && (
+              <div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <span id="quantity-label" className="text-sm font-semibold text-slate-700">Số lượng</span>
+                  <div role="group" aria-labelledby="quantity-label" className="inline-flex items-center overflow-hidden rounded-md border border-slate-300 bg-white">
+                    <button
+                      type="button"
+                      disabled={selectedQuantity <= 1 || submitting || loadingCart}
+                      onClick={() => setQuantity(Math.max(1, selectedQuantity - 1))}
+                      aria-label="Giảm số lượng"
+                      className="inline-flex size-11 items-center justify-center text-[#193d57] enabled:cursor-pointer enabled:hover:bg-slate-100 disabled:opacity-35"
+                    >
+                      <Minus className="size-4" aria-hidden="true" />
+                    </button>
+                    <output className="min-w-10 text-center text-sm font-semibold text-slate-900 tabular-nums" aria-live="polite">
+                      {selectedQuantity}
+                    </output>
+                    <button
+                      type="button"
+                      disabled={selectedQuantity >= availableQuantity || submitting || loadingCart}
+                      onClick={() => setQuantity(selectedQuantity + 1)}
+                      aria-label="Tăng số lượng"
+                      className="inline-flex size-11 items-center justify-center text-[#193d57] enabled:cursor-pointer enabled:hover:bg-slate-100 disabled:opacity-35"
+                    >
+                      <Plus className="size-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+                {inCart > 0 && (
+                  <p className="mt-2 text-sm text-slate-600">
+                    Đã có {inCart} trong giỏ.
+                    {availableQuantity === 0 && ' Bạn đã chọn hết số lượng còn lại.'}
+                  </p>
+                )}
               </div>
-              <span className="text-xs text-slate-500">
-                (Tối đa {stock} sản phẩm)
-              </span>
-            </div>
-          )}
+            )}
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button
-              type="button"
-              disabled={outOfStock || submitting}
-              onClick={() => handleAddToCart(false)}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 disabled:opacity-50 text-sm font-semibold transition-colors cursor-pointer"
-            >
-              <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-              Thêm vào giỏ hàng
-            </button>
-            <button
-              type="button"
-              disabled={outOfStock || submitting}
-              onClick={() => handleAddToCart(true)}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors cursor-pointer"
-            >
-              Mua ngay
-            </button>
-          </div>
+            {feedback && (
+              <div
+                role={feedback.type === 'error' ? 'alert' : 'status'}
+                className={`flex items-start gap-2 rounded-md border px-3 py-3 text-sm ${
+                  feedback.type === 'success'
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                    : 'border-red-200 bg-red-50 text-red-800'
+                }`}
+              >
+                {feedback.type === 'success' ? (
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                ) : (
+                  <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                )}
+                <span>
+                  {feedback.message}
+                  {feedback.type === 'success' && <Link to="/cart" className="ml-2 font-semibold underline underline-offset-4">Xem giỏ hàng</Link>}
+                </span>
+              </div>
+            )}
 
-          <div className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-600">
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200/80">
-              <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" aria-hidden="true" />
-              <span>Kiểm tra tồn kho tự động khi đặt đơn</span>
+            <div className="grid gap-3 sm:grid-cols-2" aria-busy={submitting}>
+              <button
+                type="button"
+                disabled={purchaseDisabled}
+                onClick={() => handleAddToCart(false)}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[#193d57] px-3 text-sm font-semibold text-white enabled:cursor-pointer enabled:hover:bg-[#285372] disabled:opacity-40"
+              >
+                <ShoppingCart className="size-4" aria-hidden="true" />
+                {submitting ? 'Đang thêm…' : 'Thêm vào giỏ hàng'}
+              </button>
+              <button
+                type="button"
+                disabled={purchaseDisabled}
+                onClick={() => handleAddToCart(true)}
+                className="inline-flex min-h-12 items-center justify-center rounded-md border border-[#193d57] px-3 text-sm font-semibold text-[#193d57] enabled:cursor-pointer enabled:hover:bg-[#eaf0f4] disabled:opacity-40"
+              >
+                Mua ngay
+              </button>
             </div>
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200/80">
-              <PackageCheck className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
-              <span>Đổi trả trong 15 ngày nếu lỗi phần cứng</span>
-            </div>
+            <p className="text-xs leading-relaxed text-slate-600">
+              Bạn có thể kiểm tra số lượng và thông tin giao hàng trước khi đặt đơn.
+            </p>
           </div>
         </div>
       </div>

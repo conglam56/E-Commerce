@@ -16,3 +16,4 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
 
   return children;
 }
+

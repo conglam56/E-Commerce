@@ -1,6 +1,7 @@
 package com.javaweb.ecommerce.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -8,6 +9,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import lombok.extern.slf4j.Slf4j;
 
 import jakarta.persistence.OptimisticLockException;
 
@@ -16,6 +20,7 @@ import java.util.Map;
 import com.javaweb.ecommerce.common.ApiResponse;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -33,8 +38,28 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Object> handleRuntimeException(RuntimeException ex) {
-        return ApiResponse.error(500, ex.getMessage());
+        log.error("Unhandled API error", ex);
+        return ApiResponse.error(500, "Không thể xử lý yêu cầu. Vui lòng thử lại.");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Object> handleInvalidArgument(IllegalArgumentException ex) {
+        return ApiResponse.error(400, ex.getMessage());
+    }
+
+    @ExceptionHandler({ IllegalStateException.class, DataIntegrityViolationException.class })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResponse<Object> handleConflict(RuntimeException ex) {
+        return ApiResponse.error(409, "Dữ liệu đã tồn tại hoặc vừa thay đổi. Hãy kiểm tra và thử lại.");
+    }
+
+    @ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Object> handleMalformedRequest(Exception ex) {
+        return ApiResponse.error(400, "Dữ liệu gửi lên không hợp lệ.");
     }
 
     @ExceptionHandler(BadCredentialsException.class)

@@ -177,12 +177,26 @@ public class OrderServiceImpl implements OrderService {
 
         OrderStatus currentStatus = order.getStatus();
 
+        if (currentStatus == newStatus) {
+            return orderMapper.toResponse(order);
+        }
+
         if (currentStatus == OrderStatus.DELIVERED) {
             throw new InvalidOrderStateException("Đơn hàng đã giao thành công, không thể thay đổi trạng thái");
         }
 
         if (currentStatus == OrderStatus.CANCELLED) {
             throw new InvalidOrderStateException("Đơn hàng đã bị hủy, không thể thay đổi trạng thái");
+        }
+
+        boolean allowed = switch (currentStatus) {
+            case PENDING -> newStatus == OrderStatus.CONFIRMED || newStatus == OrderStatus.CANCELLED;
+            case CONFIRMED -> newStatus == OrderStatus.SHIPPED || newStatus == OrderStatus.CANCELLED;
+            case SHIPPED -> newStatus == OrderStatus.DELIVERED;
+            default -> false;
+        };
+        if (!allowed) {
+            throw new InvalidOrderStateException("Không thể chuyển đơn hàng từ " + currentStatus + " sang " + newStatus);
         }
 
         if (newStatus == OrderStatus.CANCELLED) {

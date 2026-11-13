@@ -15,7 +15,7 @@ const EMPTY_FORM = {
   quantity: 10,
   price: 10000000,
   description: '',
-  imageUrl: 'macbook-m3.jpg',
+  imageUrl: '',
   categoryId: '',
 };
 
@@ -334,7 +334,7 @@ export default function AdminProductsPage() {
                     onChange={(e) =>
                       setForm({ ...form, imageUrl: e.target.value })
                     }
-                    placeholder="macbook-m3.jpg hoặc https://..."
+                    placeholder="/catalog/photos/... hoặc https://..."
                     className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm"
                   />
                 </div>
@@ -377,3 +377,4 @@ export default function AdminProductsPage() {
     </div>
   );
 }
+

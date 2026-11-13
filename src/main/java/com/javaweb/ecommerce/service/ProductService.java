@@ -17,7 +17,7 @@ public interface ProductService {
 
     ProductResponse getProductById(UUID id);
 
-    Page<ProductResponse> getAllProducts(Pageable pageable);
+    Page<ProductResponse> getAllProducts(UUID categoryId, String keyword, Pageable pageable);
 
     void deleteProduct(UUID id);
 }

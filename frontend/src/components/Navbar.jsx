@@ -1,15 +1,8 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import {
-  Cpu,
-  ShoppingCart,
-  Package,
-  ShieldCheck,
-  LogOut,
-  User,
-  Layers,
-} from 'lucide-react';
+import { LogOut, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import BrandWordmark from './BrandWordmark';
 
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, cartItemCount, logout } = useAuth();
@@ -21,114 +14,92 @@ export default function Navbar() {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
-      isActive
-        ? 'bg-slate-900 text-white'
-        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+    `inline-flex min-h-10 items-center px-2 text-sm font-semibold underline-offset-4 hover:underline sm:px-3 ${
+      isActive ? 'text-[#193d57] underline' : 'text-slate-600'
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
+      <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-x-2 px-4 sm:gap-x-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
-        <div className="flex items-center gap-6">
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 text-slate-900 font-display font-extrabold text-lg tracking-tight cursor-pointer"
-          >
-            <span className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
-              <Cpu className="w-5 h-5" aria-hidden="true" />
-            </span>
-            <span>
-              CORE<span className="text-blue-600">.TECH</span>
-            </span>
-          </Link>
+        <Link
+          to="/"
+          className="inline-flex min-h-14 items-center text-base sm:text-xl"
+        >
+          <BrandWordmark />
+        </Link>
 
-          <nav className="hidden md:flex items-center gap-1" aria-label="Điều hướng chính">
-            <NavLink to="/" end className={navLinkClass}>
-              <Layers className="w-4 h-4" aria-hidden="true" />
-              Sản phẩm
+        <nav
+          className={`order-last basis-full flex-wrap items-center border-t border-slate-100 lg:order-none lg:mr-auto lg:basis-auto lg:border-0 ${
+            isAuthenticated ? 'flex' : 'hidden lg:flex'
+          }`}
+          aria-label="Điều hướng chính"
+        >
+          <NavLink to="/" end className={navLinkClass}>
+            Sản phẩm
+          </NavLink>
+          {isAuthenticated && (
+            <NavLink to="/orders" className={navLinkClass}>
+              Đơn hàng
             </NavLink>
-
-            {isAuthenticated && (
-              <NavLink to="/orders" className={navLinkClass}>
-                <Package className="w-4 h-4" aria-hidden="true" />
-                Đơn hàng của tôi
+          )}
+          {isAdmin && (
+            <>
+              <NavLink to="/admin/products" className={navLinkClass}>
+                Quản lý sản phẩm
               </NavLink>
-            )}
-
-            {isAdmin && (
-              <>
-                <NavLink to="/admin/products" className={navLinkClass}>
-                  <ShieldCheck className="w-4 h-4 text-blue-500" aria-hidden="true" />
-                  Quản trị SP
-                </NavLink>
-                <NavLink to="/admin/orders" className={navLinkClass}>
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" aria-hidden="true" />
-                  Quản trị Đơn
-                </NavLink>
-              </>
-            )}
-          </nav>
-        </div>
+              <NavLink to="/admin/orders" className={navLinkClass}>
+                Quản lý đơn hàng
+              </NavLink>
+            </>
+          )}
+        </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           <Link
             to="/cart"
-            className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-sm font-medium transition-colors cursor-pointer"
+            className="inline-flex min-h-11 items-center gap-1 rounded-md px-1.5 text-sm font-semibold text-[#193d57] hover:bg-slate-100 sm:gap-2 sm:px-2.5"
             aria-label={`Giỏ hàng (${cartItemCount} sản phẩm)`}
           >
-            <ShoppingCart className="w-4 h-4 text-blue-600" aria-hidden="true" />
+            <ShoppingCart className="size-4 shrink-0" aria-hidden="true" />
             <span className="hidden sm:inline">Giỏ hàng</span>
-            <span className="font-mono-num inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-bold rounded-full bg-blue-600 text-white">
+            <span className="inline-flex min-w-4 items-center justify-center rounded bg-[#e1ecf3] px-1 text-xs tabular-nums">
               {cartItemCount}
             </span>
           </Link>
 
           {isAuthenticated ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-              <div className="hidden sm:flex flex-col items-end">
-                <span className="text-xs font-medium text-slate-900 truncate max-w-[160px]">
-                  {user?.email}
-                </span>
-                <span
-                  className={`text-[10px] font-mono-num font-semibold px-1.5 py-0.5 rounded ${
-                    isAdmin
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'bg-slate-100 text-slate-600'
-                  }`}
-                >
-                  {isAdmin ? 'ADMIN' : 'CUSTOMER'}
-                </span>
-              </div>
-
+            <div className="flex items-center gap-2 border-l border-slate-200 pl-2">
+              <span className="hidden max-w-36 truncate text-xs text-slate-600 xl:inline" title={user?.email}>
+                {user?.email}
+              </span>
               <button
                 type="button"
                 onClick={handleLogout}
                 title="Đăng xuất"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                aria-label="Đăng xuất"
+                className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
               >
-                <LogOut className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden lg:inline">Đăng xuất</span>
+                <LogOut className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Đăng xuất</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <>
               <Link
                 to="/login"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="inline-flex min-h-11 items-center rounded-md px-1.5 text-xs font-semibold whitespace-nowrap text-slate-700 hover:bg-slate-100 sm:px-2.5 sm:text-sm"
               >
-                <User className="w-4 h-4" aria-hidden="true" />
                 Đăng nhập
               </Link>
               <Link
                 to="/register"
-                className="inline-flex items-center px-3.5 py-2 rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition-colors cursor-pointer"
+                className="inline-flex min-h-10 items-center rounded-md border border-slate-200 px-2 text-xs font-semibold whitespace-nowrap text-[#193d57] hover:bg-slate-100 sm:px-3 sm:text-sm"
               >
                 Đăng ký
               </Link>
-            </div>
+            </>
           )}
         </div>
       </div>

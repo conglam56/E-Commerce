@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Cpu, AlertCircle, ArrowRight } from 'lucide-react';
+import { AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import BrandWordmark from '../components/BrandWordmark';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -31,18 +32,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8 shadow-xs">
-        <div className="flex items-center gap-2.5 mb-6">
-          <span className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center">
-            <Cpu className="w-5 h-5" aria-hidden="true" />
-          </span>
-          <div>
-            <h1 className="text-xl font-display font-bold text-slate-900">
-              Đăng nhập hệ thống
-            </h1>
-            <p className="text-xs text-slate-500">
-              Đồng bộ giỏ hàng và theo dõi trạng thái đơn hàng
-            </p>
-          </div>
+        <div className="mb-6 space-y-1.5">
+          <BrandWordmark />
+          <h1 className="text-xl font-display font-bold text-slate-900">Đăng nhập</h1>
+          <p className="text-sm text-slate-600">Xem giỏ hàng và theo dõi đơn hàng của bạn.</p>
         </div>
 
         {error && (
@@ -117,3 +110,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
