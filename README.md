@@ -2,7 +2,11 @@
 
 Ứng dụng bán thiết bị công nghệ với React và Spring Boot. Khách có thể tìm sản phẩm, quản lý giỏ, đặt hàng và hủy đơn đang chờ xác nhận. Quản trị viên quản lý sản phẩm và xử lý đơn theo từng trạng thái.
 
-Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. Giá và tồn kho là dữ liệu minh họa. Chuyển khoản là mô phỏng.
+Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. Giá, tồn kho và thanh toán chuyển khoản dùng dữ liệu minh họa.
+
+[![Build and test](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml)
+
+![Trang chủ The Tech Shop](docs/screenshots/storefront.png)
 
 ## Công nghệ
 
@@ -14,16 +18,19 @@ Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. Giá và tồn kho l�
 | Kiểm tra | JUnit 5, Mockito, kiểm thử API và trình duyệt trên dữ liệu QA |
 | CI | GitHub Actions với hai job kiểm tra backend và build frontend |
 
-## Các phần đã triển khai
+## Tính năng
 
 - Phân quyền CUSTOMER/ADMIN ở API và điều hướng tương ứng ở giao diện.
+- Đăng ký với thông báo lỗi ngay khi nhập. Sau khi đăng nhập, chọn avatar để xem họ tên, email và vai trò.
 - Tìm kiếm, lọc danh mục, sắp xếp và phân trang phía máy chủ.
-- Thay đổi số lượng trong giỏ, kiểm tra tồn kho và tính tiền phía backend.
+- Nhập số lượng trực tiếp hoặc dùng nút tăng/giảm. Backend kiểm tra tồn kho và tính tiền.
 - Đặt hàng trong transaction, lưu giá tại thời điểm đặt, trừ kho và làm trống giỏ khi thành công.
 - Optimistic locking trên sản phẩm và đơn hàng. Cập nhật xung đột trả HTTP 409 và transaction được rollback.
 - Hủy đơn còn chờ xác nhận và hoàn tồn kho. Quản trị có thể hủy đơn đã xác nhận trước khi giao.
 - Giao diện responsive với trạng thái đang tải, lỗi, thử lại và giỏ trống.
-- Ảnh catalog hãng cho 22 sản phẩm, có ảnh dự phòng khi CDN lỗi. Một sản phẩm Xiaomi vẫn dùng ảnh dự phòng. Nguồn được liệt kê tại trang “Nguồn ảnh” ở chân trang.
+- Ảnh catalog có ảnh dự phòng khi CDN lỗi. Xem [ghi công ảnh](frontend/public/catalog/photo-credits.html).
+
+## Kiến trúc
 
 ~~~mermaid
 flowchart LR
@@ -102,10 +109,10 @@ UPDATE users SET role = 'ADMIN' WHERE email = 'your-demo-admin@example.com';
 
 Dùng username database bạn cấu hình nếu khác `postgres`. Đăng xuất rồi đăng nhập lại để giao diện nhận quyền mới. Tài khoản đăng ký thông thường có quyền CUSTOMER.
 
-## Kịch bản trình bày
+## Dùng thử
 
 1. Tìm sản phẩm, đổi danh mục và sắp xếp giá.
-2. Đăng ký tài khoản khách, thêm hai sản phẩm và đổi số lượng trong giỏ.
+2. Đăng ký tài khoản khách, mở hồ sơ từ avatar, thêm sản phẩm và đổi số lượng trong giỏ.
 3. Nhập thông tin giao hàng, chọn COD và đặt đơn.
 4. Mở lịch sử đơn, đối chiếu tổng tiền, hủy một đơn đang chờ xác nhận và kiểm tra tồn kho.
 5. Đăng nhập quản trị, lọc đơn và chuyển qua các trạng thái hợp lệ.
@@ -139,24 +146,9 @@ Bộ test dùng Mockito nên không cần database cho `mvn test`. Surefire nạ
 
 Workflow ở [.github/workflows/ci.yml](.github/workflows/ci.yml) chạy `mvn verify` và `npm ci && npm run build` cho push và pull request.
 
-## Bằng chứng kiểm tra
-
-| Kiểm tra | Kết quả cục bộ |
-| --- | --- |
-| JUnit/Mockito | 36 test đạt, gồm 15 test cũ và 21 ca hồi quy mới |
-| Đóng gói | `mvn verify` tạo JAR thành công, JAR khởi động được |
-| Frontend từ lockfile | `npm ci` và `npm run build` thành công |
-| Phân quyền và validation | Kiểm tra HTTP 401, 403, 409 và 400 qua API |
-| Hai khách mua sản phẩm cuối cùng | Đối chiếu đơn thắng, đơn thất bại và số lượng tồn kho |
-| Giao dịch đặt/hủy đơn | Đối chiếu tổng tiền, giỏ hàng và tồn kho |
-| Trình duyệt | COD, chuyển khoản mô phỏng, lịch sử khách và xử lý đơn quản trị |
-| Responsive | Kiểm tra tại 375, 390, 768, 1024 và 1440 px |
-
-Kết quả cục bộ được kiểm tra ngày 13/11/2026. Các kiểm tra tích hợp dùng PostgreSQL QA cục bộ. Cấu hình Compose đã được kiểm tra bằng `docker compose config --quiet`. Trạng thái chạy CI trên GitHub sẽ xuất hiện sau khi code được đẩy lên repository.
+Các bài test backend bao phủ xác thực, điều kiện đăng ký, giỏ hàng, quy trình đặt và hủy đơn, cùng xung đột tồn kho. Bạn có thể xem kết quả build hiện tại trong GitHub Actions.
 
 ## Ảnh demo
-
-![Trang chủ](docs/screenshots/storefront.png)
 
 ![Đặt hàng](docs/screenshots/checkout.png)
 
@@ -164,17 +156,12 @@ Kết quả cục bộ được kiểm tra ngày 13/11/2026. Các kiểm tra tí
 
 [Xem giao diện đặt hàng trên điện thoại](docs/screenshots/checkout-mobile.png)
 
-## Nội dung cho CV
+## Triển khai trên Render
 
-**The Tech Shop — Full-stack E-commerce Application**
+[Blueprint](render.yaml) dựng một Web Service từ [Dockerfile.render](Dockerfile.render) và một PostgreSQL riêng. Web Service phục vụ React và API Spring Boot cùng tên miền. Flyway khởi tạo danh mục mẫu khi kết nối database mới.
 
-*Java, Spring Boot, Spring Security, PostgreSQL, React, Tailwind CSS, GitHub Actions*
-
-- Developed a full-stack storefront with JWT authentication, role-based access, server-side product filtering, cart management, checkout, and customer/admin order workflows.
-- Implemented transactional checkout and inventory restoration with JPA optimistic locking, Flyway migrations, and 36 JUnit/Mockito tests; configured CI for backend verification and frontend production builds.
-
-Có thể giải thích khi phỏng vấn cách transaction rollback giữ kho nhất quán, cách JWT và quyền ADMIN được kiểm tra ở server, và cách frontend hiển thị lỗi mà giữ dữ liệu người dùng đang nhập.
+Gói miễn phí thích hợp cho bản demo. Web Service có thể cần thời gian khởi động sau khi không có lượt truy cập, và PostgreSQL hết hạn sau 30 ngày. [Giới hạn gói miễn phí của Render](https://render.com/docs/free)
 
 ## Phạm vi demo
 
-COD là luồng đặt hàng chính. Ngân hàng, vận chuyển và email chưa tích hợp dịch vụ thực tế. Ảnh hãng được tải từ CDN và có thể thay đổi theo nguồn. Repo chuẩn bị cho chạy cục bộ, cần cấu hình môi trường riêng nếu triển khai công khai.
+COD là luồng đặt hàng chính. Ngân hàng, vận chuyển và email chưa tích hợp dịch vụ thực tế. Ảnh hãng được tải từ CDN và có thể thay đổi theo nguồn. Khi dùng bản demo công khai, hãy nhập thông tin giao hàng minh họa.

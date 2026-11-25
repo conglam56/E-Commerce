@@ -1,0 +1,23 @@
+FROM node:22-alpine AS frontend
+WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/index.html frontend/vite.config.js ./
+COPY frontend/public ./public
+COPY frontend/src ./src
+RUN VITE_API_BASE_URL=/api npm run build
+
+FROM maven:3.9.9-eclipse-temurin-17 AS backend
+WORKDIR /app
+COPY pom.xml ./
+COPY src ./src
+COPY --from=frontend /app/dist ./src/main/resources/static
+RUN mvn --batch-mode --no-transfer-progress verify
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=backend /app/target/*.jar ./app.jar
+EXPOSE 10000
+# Render provides an internal PostgreSQL URI. JDBC receives host and database
+# separately from the username and password configured by the Blueprint.
+ENTRYPOINT ["sh", "-ec", "export DB_URL=jdbc:postgresql://${RENDER_DATABASE_URL##*@}; exec java -XX:MaxRAMPercentage=55 -jar app.jar --server.address=0.0.0.0 --server.port=${PORT:-10000} --server.forward-headers-strategy=framework"]

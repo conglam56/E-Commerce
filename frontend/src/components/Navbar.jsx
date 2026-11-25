@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { LogOut, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AccountAvatar from './AccountAvatar';
 import BrandWordmark from './BrandWordmark';
 
 export default function Navbar() {
@@ -71,9 +72,15 @@ export default function Navbar() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-2 border-l border-slate-200 pl-2">
-              <span className="hidden max-w-36 truncate text-xs text-slate-600 xl:inline" title={user?.fullName || user?.email}>
-                {user?.fullName || user?.email}
-              </span>
+              <NavLink
+                to="/profile"
+                title="Thông tin cá nhân"
+                aria-label={`Thông tin cá nhân của ${user.fullName || user.email}`}
+                className="inline-flex size-auto min-h-11 min-w-11 items-center justify-center gap-2 rounded-md px-1.5 text-[#193d57] hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#193d57] aria-[current=page]:bg-slate-100"
+              >
+                <AccountAvatar user={user} />
+                <span className="hidden max-w-36 truncate text-xs xl:inline">{user.fullName || user.email}</span>
+              </NavLink>
               <button
                 type="button"
                 onClick={handleLogout}
