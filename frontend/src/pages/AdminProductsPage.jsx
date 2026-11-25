@@ -19,6 +19,40 @@ const EMPTY_FORM = {
   categoryId: '',
 };
 
+const FIELD_LABELS = {
+  name: 'Tên sản phẩm',
+  price: 'Giá bán (VNĐ)',
+  quantity: 'Số lượng tồn kho',
+  categoryId: 'Danh mục',
+  imageUrl: 'Ảnh sản phẩm',
+  description: 'Mô tả kỹ thuật',
+};
+
+function validateForm(values) {
+  const errors = {};
+  if (!values.name.trim()) {
+    errors.name = 'Tên sản phẩm không được để trống.';
+  }
+  const priceText = String(values.price ?? '').trim();
+  const priceNumber = Number(priceText);
+  if (priceText === '') {
+    errors.price = 'Giá bán không được để trống.';
+  } else if (!Number.isFinite(priceNumber) || priceNumber <= 0) {
+    errors.price = 'Giá bán phải lớn hơn 0.';
+  }
+  const quantityText = String(values.quantity ?? '').trim();
+  const quantityNumber = Number(quantityText);
+  if (quantityText === '') {
+    errors.quantity = 'Số lượng tồn kho không được để trống.';
+  } else if (!Number.isInteger(quantityNumber) || quantityNumber < 0) {
+    errors.quantity = 'Số lượng tồn kho phải là số nguyên từ 0 trở lên.';
+  }
+  if (!values.categoryId) {
+    errors.categoryId = 'Vui lòng chọn danh mục sản phẩm.';
+  }
+  return errors;
+}
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -29,10 +63,16 @@ export default function AdminProductsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const dialogRef = useRef(null);
   const nameInputRef = useRef(null);
+  const priceInputRef = useRef(null);
+  const quantityInputRef = useRef(null);
+  const categorySelectRef = useRef(null);
   const createButtonRef = useRef(null);
+  const pendingFocusErrorsRef = useRef(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -74,6 +114,8 @@ export default function AdminProductsPage() {
 
   const openCreateModal = () => {
     setNotice(null);
+    setFormError('');
+    setFieldErrors({});
     setEditingId(null);
     setForm({
       ...EMPTY_FORM,
@@ -84,6 +126,8 @@ export default function AdminProductsPage() {
 
   const openEditModal = (product) => {
     setNotice(null);
+    setFormError('');
+    setFieldErrors({});
     setEditingId(product.id);
     setForm({
       name: product.name || '',
@@ -96,10 +140,54 @@ export default function AdminProductsPage() {
     setModalOpen(true);
   };
 
+  const updateField = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      const nextErrors = { ...fieldErrors };
+      delete nextErrors[field];
+      setFieldErrors(nextErrors);
+      if (Object.keys(nextErrors).length === 0) {
+        setFormError('');
+      }
+    } else if (formError && Object.keys(fieldErrors).length === 0) {
+      setFormError('');
+    }
+  };
+
+  const focusFirstInvalidField = useCallback((errors) => {
+    const fieldRefs = {
+      name: nameInputRef,
+      price: priceInputRef,
+      quantity: quantityInputRef,
+      categoryId: categorySelectRef,
+    };
+    const firstField = ['name', 'price', 'quantity', 'categoryId'].find((key) => errors[key]);
+    if (firstField) {
+      fieldRefs[firstField]?.current?.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!saving && pendingFocusErrorsRef.current) {
+      focusFirstInvalidField(pendingFocusErrorsRef.current);
+      pendingFocusErrorsRef.current = null;
+    }
+  }, [saving, fieldErrors, focusFirstInvalidField]);
+
   const handleSave = async (e) => {
     e.preventDefault();
+    const clientErrors = validateForm(form);
+    if (Object.keys(clientErrors).length > 0) {
+      setFieldErrors(clientErrors);
+      setFormError('Vui lòng kiểm tra lại các trường thông tin bên dưới.');
+      focusFirstInvalidField(clientErrors);
+      return;
+    }
+
     setSaving(true);
     setNotice(null);
+    setFormError('');
+    setFieldErrors({});
     const payload = {
       name: form.name.trim(),
       quantity: Number(form.quantity),
@@ -120,7 +208,17 @@ export default function AdminProductsPage() {
       await loadData();
       setModalOpen(false);
     } catch (err) {
-      setNotice({ type: 'error', text: err.message || 'Không thể lưu sản phẩm.' });
+      const serverFields =
+        err.details && typeof err.details === 'object' && !Array.isArray(err.details)
+          ? err.details
+          : {};
+      if (Object.keys(serverFields).length > 0) {
+        setFieldErrors(serverFields);
+        setFormError('Dữ liệu nhập vào chưa hợp lệ. Vui lòng kiểm tra lại các trường bên dưới.');
+        pendingFocusErrorsRef.current = serverFields;
+      } else {
+        setFormError(err.message || 'Không thể lưu sản phẩm.');
+      }
     } finally {
       setSaving(false);
     }
@@ -343,8 +441,27 @@ export default function AdminProductsPage() {
               </button>
             </div>
 
-            {notice?.type === 'error' && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{notice.text}</p>}
-            <form onSubmit={handleSave} className="space-y-4" aria-busy={saving}>
+            {formError && (
+              <div
+                role="alert"
+                className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-800"
+              >
+                <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="font-medium">{formError}</p>
+                  {Object.keys(fieldErrors).length > 0 && (
+                    <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-xs">
+                      {Object.entries(fieldErrors).map(([field, message]) => (
+                        <li key={field}>
+                          <span className="font-semibold">{FIELD_LABELS[field] || field}:</span> {message}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+            <form onSubmit={handleSave} noValidate className="space-y-4" aria-busy={saving}>
               <fieldset disabled={saving} className="space-y-4">
                 <legend className="sr-only">Thông tin sản phẩm</legend>
               <div>
@@ -357,9 +474,18 @@ export default function AdminProductsPage() {
                   type="text"
                   required
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="shop-field w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm"
+                  onChange={(e) => updateField('name', e.target.value)}
+                  aria-invalid={Boolean(fieldErrors.name)}
+                  aria-describedby={fieldErrors.name ? 'product-name-error' : undefined}
+                  className={`shop-field w-full px-3.5 py-2 rounded-lg border text-sm ${
+                    fieldErrors.name ? 'border-red-500' : 'border-slate-300'
+                  }`}
                 />
+                {fieldErrors.name && (
+                  <p id="product-name-error" role="alert" className="mt-1.5 text-xs font-medium text-red-700">
+                    {fieldErrors.name}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -369,13 +495,24 @@ export default function AdminProductsPage() {
                   </label>
                   <input
                     id="product-price"
+                    ref={priceInputRef}
                     type="number"
                     required
-                    min={0}
+                    min={1}
+                    step="any"
                     value={form.price}
-                    onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    className="shop-field w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm font-mono-num"
+                    onChange={(e) => updateField('price', e.target.value)}
+                    aria-invalid={Boolean(fieldErrors.price)}
+                    aria-describedby={fieldErrors.price ? 'product-price-error' : undefined}
+                    className={`shop-field w-full px-3.5 py-2 rounded-lg border text-sm font-mono-num ${
+                      fieldErrors.price ? 'border-red-500' : 'border-slate-300'
+                    }`}
                   />
+                  {fieldErrors.price && (
+                    <p id="product-price-error" role="alert" className="mt-1.5 text-xs font-medium text-red-700">
+                      {fieldErrors.price}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="product-quantity" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
@@ -383,15 +520,24 @@ export default function AdminProductsPage() {
                   </label>
                   <input
                     id="product-quantity"
+                    ref={quantityInputRef}
                     type="number"
                     required
                     min={0}
+                    step={1}
                     value={form.quantity}
-                    onChange={(e) =>
-                      setForm({ ...form, quantity: e.target.value })
-                    }
-                    className="shop-field w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm font-mono-num"
+                    onChange={(e) => updateField('quantity', e.target.value)}
+                    aria-invalid={Boolean(fieldErrors.quantity)}
+                    aria-describedby={fieldErrors.quantity ? 'product-quantity-error' : undefined}
+                    className={`shop-field w-full px-3.5 py-2 rounded-lg border text-sm font-mono-num ${
+                      fieldErrors.quantity ? 'border-red-500' : 'border-slate-300'
+                    }`}
                   />
+                  {fieldErrors.quantity && (
+                    <p id="product-quantity-error" role="alert" className="mt-1.5 text-xs font-medium text-red-700">
+                      {fieldErrors.quantity}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -402,12 +548,15 @@ export default function AdminProductsPage() {
                   </label>
                   <select
                     id="product-category"
+                    ref={categorySelectRef}
                     required
                     value={form.categoryId}
-                    onChange={(e) =>
-                      setForm({ ...form, categoryId: e.target.value })
-                    }
-                    className="shop-field w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                    onChange={(e) => updateField('categoryId', e.target.value)}
+                    aria-invalid={Boolean(fieldErrors.categoryId)}
+                    aria-describedby={fieldErrors.categoryId ? 'product-category-error' : undefined}
+                    className={`shop-field w-full px-3.5 py-2 rounded-lg border text-sm bg-white ${
+                      fieldErrors.categoryId ? 'border-red-500' : 'border-slate-300'
+                    }`}
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -415,6 +564,11 @@ export default function AdminProductsPage() {
                       </option>
                     ))}
                   </select>
+                  {fieldErrors.categoryId && (
+                    <p id="product-category-error" role="alert" className="mt-1.5 text-xs font-medium text-red-700">
+                      {fieldErrors.categoryId}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -425,12 +579,19 @@ export default function AdminProductsPage() {
                     id="product-image"
                     type="text"
                     value={form.imageUrl}
-                    onChange={(e) =>
-                      setForm({ ...form, imageUrl: e.target.value })
-                    }
+                    onChange={(e) => updateField('imageUrl', e.target.value)}
+                    aria-invalid={Boolean(fieldErrors.imageUrl)}
+                    aria-describedby={fieldErrors.imageUrl ? 'product-image-error' : undefined}
                     placeholder="/catalog/photos/... hoặc https://..."
-                    className="shop-field w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm"
+                    className={`shop-field w-full px-3.5 py-2 rounded-lg border text-sm ${
+                      fieldErrors.imageUrl ? 'border-red-500' : 'border-slate-300'
+                    }`}
                   />
+                  {fieldErrors.imageUrl && (
+                    <p id="product-image-error" role="alert" className="mt-1.5 text-xs font-medium text-red-700">
+                      {fieldErrors.imageUrl}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -442,11 +603,18 @@ export default function AdminProductsPage() {
                   id="product-description"
                   rows={3}
                   value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  className="shop-field w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm"
+                  onChange={(e) => updateField('description', e.target.value)}
+                  aria-invalid={Boolean(fieldErrors.description)}
+                  aria-describedby={fieldErrors.description ? 'product-description-error' : undefined}
+                  className={`shop-field w-full px-3.5 py-2 rounded-lg border text-sm ${
+                    fieldErrors.description ? 'border-red-500' : 'border-slate-300'
+                  }`}
                 />
+                {fieldErrors.description && (
+                  <p id="product-description-error" role="alert" className="mt-1.5 text-xs font-medium text-red-700">
+                    {fieldErrors.description}
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-end gap-2.5 pt-2">

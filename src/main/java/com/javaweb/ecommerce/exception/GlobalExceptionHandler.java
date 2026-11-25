@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        return ApiResponse.errorList(400, "Validation errors", errors);
+        return ApiResponse.errorList(400, "Dữ liệu nhập vào chưa hợp lệ. Vui lòng kiểm tra lại các trường báo lỗi.", errors);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
