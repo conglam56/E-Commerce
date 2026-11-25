@@ -2,21 +2,92 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
-  ShoppingCart,
+  ShoppingBag,
   CheckCircle2,
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
-  ArrowDown,
+  Pause,
+  Play,
+  X,
 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import ProductImage from '../components/ProductImage';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrencyVND } from '../utils/format';
 
+const SLIDE_DURATION_MS = 5200;
+
+const FLAGSHIP_SLIDES = [
+  {
+    eyebrow: 'Thiết kế Titan',
+    name: 'iPhone 15 Pro Max',
+    headline: 'iPhone 15 Pro Max',
+    subhead: 'Titan tự nhiên. Nhẹ tênh. Mạnh vượt trội.',
+    price: 30000000,
+    imageUrl: '/catalog/photos/iphone-15-pro-max.webp',
+    alt: 'iPhone 15 Pro Max khung viền Titan',
+    categorySlug: 'dien-thoai',
+    categoryLabel: 'Điện thoại',
+    auraStyle:
+      'radial-gradient(circle at 50% 54%, rgba(194, 166, 130, 0.34) 0%, rgba(56, 98, 168, 0.18) 38%, rgba(0, 0, 0, 0) 72%)',
+  },
+  {
+    eyebrow: 'Hiệu năng đồ họa',
+    name: 'Asus ROG Strix',
+    headline: 'ROG Strix G15',
+    subhead: 'Tản nhiệt chuẩn mực. Làm chủ mọi tác vụ nặng.',
+    price: 35000000,
+    imageUrl: '/catalog/photos/asus-rog-strix-g15.webp',
+    alt: 'Laptop gaming Asus ROG Strix G15',
+    categorySlug: 'laptop',
+    categoryLabel: 'Laptop',
+    auraStyle:
+      'radial-gradient(circle at 50% 54%, rgba(56, 189, 248, 0.28) 0%, rgba(99, 102, 241, 0.20) 40%, rgba(0, 0, 0, 0) 72%)',
+  },
+  {
+    eyebrow: 'Âm thanh không gian',
+    name: 'AirPods Pro 2',
+    headline: 'AirPods Pro 2',
+    subhead: 'Chống ồn chủ động. Tĩnh lặng chỉ sau một chạm.',
+    price: 4490000,
+    imageUrl: '/catalog/photos/airpods-pro-2.webp',
+    alt: 'Tai nghe không dây Apple AirPods Pro 2 kèm hộp sạc',
+    categorySlug: 'tai-nghe',
+    categoryLabel: 'Tai nghe',
+    auraStyle:
+      'radial-gradient(circle at 50% 54%, rgba(125, 211, 252, 0.26) 0%, rgba(52, 211, 153, 0.14) 40%, rgba(0, 0, 0, 0) 72%)',
+  },
+];
+
+const BENTO_TILES = [
+  {
+    theme: 'light',
+    eyebrow: 'Gọn nhẹ di động',
+    name: 'MacBook Air M2',
+    subhead: 'Mỏng thanh thoát. Pin bền bỉ suốt ngày dài.',
+    price: 17990000,
+    imageUrl: '/catalog/photos/macbook-air-m2.webp',
+    alt: 'Laptop Apple MacBook Air M2',
+    categorySlug: 'laptop',
+    categoryLabel: 'Xem dòng Laptop',
+  },
+  {
+    theme: 'dark',
+    eyebrow: 'Chuẩn mực bàn làm việc',
+    name: 'Logitech MX Master 3S',
+    subhead: 'Cuộn từ trường êm tuyệt đối. Chuẩn từng điểm ảnh.',
+    price: 2190000,
+    imageUrl: '/catalog/photos/logitech-mx-master-3s.webp',
+    alt: 'Chuột không dây công thái học Logitech MX Master 3S',
+    categorySlug: 'ban-phim-chuot',
+    categoryLabel: 'Xem Bàn phím & chuột',
+  },
+];
+
 const productGrid = 'grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4';
 const pageButton =
-  'inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 enabled:cursor-pointer sm:px-3 sm:text-sm';
+  'inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-white px-4 text-xs font-semibold text-[#1D1D1F] shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200 enabled:cursor-pointer enabled:hover:bg-[#E8E8ED] enabled:active:scale-[0.97] motion-safe-transform disabled:opacity-40 sm:min-h-11 sm:px-5 sm:text-sm';
 
 export default function HomePage() {
   const { isAuthenticated, setCart } = useAuth();
@@ -37,6 +108,33 @@ export default function HomePage() {
   const [reloadCount, setReloadCount] = useState(0);
   const [addingId, setAddingId] = useState(null);
   const [toast, setToast] = useState(null);
+
+  // Welcome Stage motion state
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [userPaused, setUserPaused] = useState(false);
+  const [stageInteracting, setStageInteracting] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (event) => setReducedMotion(event.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+
+  const autoAdvancing = !userPaused && !stageInteracting && !reducedMotion;
+
+  useEffect(() => {
+    if (!autoAdvancing) return undefined;
+    const timer = setInterval(() => {
+      setSlideIndex((current) => (current + 1) % FLAGSHIP_SLIDES.length);
+    }, SLIDE_DURATION_MS);
+    return () => clearInterval(timer);
+  }, [autoAdvancing, slideIndex]);
 
   useEffect(() => {
     let active = true;
@@ -109,9 +207,72 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [toast]);
 
+  const scrollToCatalog = () => {
+    const section = document.getElementById('san-pham');
+    if (section) {
+      section.scrollIntoView({
+        behavior: reducedMotion ? 'auto' : 'smooth',
+      });
+    }
+  };
+
   const chooseCategory = (categoryId) => {
     setSelectedCategory(categoryId);
     setPage(0);
+  };
+
+  const resetFilters = () => {
+    setSelectedCategory('');
+    setSearchTerm('');
+    setKeyword('');
+    setPage(0);
+  };
+
+  const openProductByName = async (productName) => {
+    const inMemory = products.find(
+      (item) => item.name.toLocaleLowerCase('vi') === productName.toLocaleLowerCase('vi')
+    );
+    if (inMemory) {
+      navigate(`/products/${inMemory.id}`);
+      return;
+    }
+
+    try {
+      const res = await axiosClient.get('/products', {
+        params: { keyword: productName, size: 6 },
+      });
+      const list = res.data?.content || [];
+      const exact =
+        list.find((item) => item.name.toLocaleLowerCase('vi') === productName.toLocaleLowerCase('vi')) ||
+        list[0];
+      if (exact?.id) {
+        navigate(`/products/${exact.id}`);
+        return;
+      }
+    } catch {
+      // Fallback to filtering catalog below
+    }
+
+    setSelectedCategory('');
+    setSearchTerm(productName);
+    setKeyword(productName);
+    setPage(0);
+    scrollToCatalog();
+  };
+
+  const filterByCategorySlug = (slug, fallbackKeyword) => {
+    const matched = categories.find((cat) => cat.slug === slug);
+    setSearchTerm('');
+    setKeyword('');
+    if (matched) {
+      setSelectedCategory(matched.id);
+    } else {
+      setSelectedCategory('');
+      setSearchTerm(fallbackKeyword);
+      setKeyword(fallbackKeyword);
+    }
+    setPage(0);
+    scrollToCatalog();
   };
 
   const handleAddToCart = async (product) => {
@@ -135,102 +296,307 @@ export default function HomePage() {
     }
   };
 
+  const activeSlide = FLAGSHIP_SLIDES[slideIndex];
   const searching = searchTerm.trim() !== keyword;
   const catalogBusy = loading || searching;
+  const selectedCategoryObj = categories.find((cat) => cat.id === selectedCategory);
+  const hasActiveFilter = Boolean(selectedCategory || keyword);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-7 px-4 py-5 sm:space-y-10 sm:px-6 sm:py-8 lg:px-8">
-      {/* Toast Notification */}
+    <div>
+      {/* Floating Capsule Toast */}
       {toast && (
         <div
           role="status"
-          className={`fixed inset-x-4 bottom-5 z-50 flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg sm:right-5 sm:left-auto sm:max-w-sm ${
-            toast.type === 'success' ? 'bg-slate-900' : 'bg-red-700'
+          className={`animate-toast-in fixed inset-x-4 bottom-5 z-50 flex items-center gap-2.5 rounded-2xl px-4 py-3 text-sm font-medium text-white shadow-2xl backdrop-blur-xl sm:right-6 sm:left-auto sm:max-w-sm ${
+            toast.type === 'success' ? 'bg-[#1D1D1F]/92' : 'bg-red-700/95'
           }`}
         >
           {toast.type === 'success' ? (
-            <CheckCircle2 className="size-4 shrink-0 text-emerald-300" aria-hidden="true" />
+            <CheckCircle2 className="size-4 shrink-0 text-emerald-400" aria-hidden="true" />
           ) : (
             <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
           )}
-          {toast.message}
+          <span>{toast.message}</span>
         </div>
       )}
 
-      {/* Hero Section */}
-      <section className="grid overflow-hidden rounded-xl bg-[#eaf0f4] md:grid-cols-[1.08fr_1fr]">
-        <div className="flex flex-col items-start justify-center px-6 py-6 sm:px-10 md:py-10 lg:px-14">
-          <h1 className="max-w-lg text-3xl leading-[1.12] font-extrabold text-[#162c3c] sm:text-4xl lg:text-5xl">
-            Thiết bị công nghệ cho mỗi ngày
-          </h1>
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-700 sm:text-base">
-            Laptop, điện thoại và phụ kiện cho bàn làm việc, lớp học và những ngày di chuyển.
-          </p>
-          <a
-            href="#san-pham"
-            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white hover:bg-[#285372]"
+      {/* 1. Full-Bleed OLED Flagship Welcome Stage */}
+      <section
+        aria-roledescription="carousel"
+        aria-label="Sản phẩm tâm điểm"
+        onMouseEnter={() => setStageInteracting(true)}
+        onMouseLeave={() => setStageInteracting(false)}
+        onFocusCapture={() => setStageInteracting(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setStageInteracting(false);
+          }
+        }}
+        className="relative w-full overflow-hidden bg-black text-white"
+      >
+        {/* Ambient Studio Radial Glow */}
+        <div
+          aria-hidden="true"
+          style={{ background: activeSlide.auraStyle }}
+          className="animate-aura pointer-events-none absolute inset-0 transition-opacity duration-700"
+        />
+
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center px-4 pt-10 pb-7 text-center sm:px-6 sm:pt-14 sm:pb-9">
+          <div key={`copy-${activeSlide.name}`} className="flex flex-col items-center">
+            <p className="animate-hero-copy text-xs font-semibold tracking-wide text-[#A1A1A6] sm:text-sm">
+              {activeSlide.eyebrow}
+            </p>
+            <h1 className="animate-hero-copy mt-1.5 text-3xl leading-[1.08] font-extrabold tracking-[-0.035em] text-white sm:text-5xl lg:text-[3.5rem]">
+              {activeSlide.headline}
+            </h1>
+            <p className="animate-hero-copy-delay mt-2.5 max-w-md text-sm font-medium text-[#F5F5F7]/90 sm:mt-3 sm:max-w-xl sm:text-xl">
+              {activeSlide.subhead}
+            </p>
+            <p className="animate-hero-copy-delay mt-2 text-xs font-medium text-[#A1A1A6] tabular-nums sm:text-sm">
+              Giá niêm yết {formatCurrencyVND(activeSlide.price)}
+            </p>
+
+            {/* Centered Dual Pill Actions */}
+            <div className="animate-hero-cta mt-5 flex flex-wrap items-center justify-center gap-3 sm:mt-6">
+              <button
+                type="button"
+                onClick={() => openProductByName(activeSlide.name)}
+                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[#0066CC] px-5 text-xs font-semibold text-white transition-all duration-200 hover:bg-[#0077ED] active:scale-[0.97] motion-safe-transform sm:min-h-11 sm:px-6 sm:text-sm"
+              >
+                Mua ngay
+              </button>
+              <button
+                type="button"
+                onClick={() => filterByCategorySlug(activeSlide.categorySlug, activeSlide.categoryLabel)}
+                className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full border border-[#2997FF]/70 bg-white/[0.03] px-5 text-xs font-semibold text-[#2997FF] transition-all duration-200 hover:border-[#2997FF] hover:bg-[#2997FF] hover:text-white active:scale-[0.97] motion-safe-transform sm:min-h-11 sm:px-6 sm:text-sm"
+              >
+                Xem dòng {activeSlide.categoryLabel}
+              </button>
+            </div>
+          </div>
+
+          {/* Floating Transparent Hardware Visual */}
+          <div
+            key={`device-${activeSlide.name}`}
+            className="animate-hero-device mt-6 flex h-52 w-full max-w-2xl items-center justify-center sm:mt-8 sm:h-72 lg:h-80"
           >
-            Xem sản phẩm
-            <ArrowDown className="size-4" aria-hidden="true" />
-          </a>
+            <ProductImage
+              imageUrl={activeSlide.imageUrl}
+              alt={activeSlide.alt}
+              className="max-h-full max-w-full object-contain drop-shadow-[0_26px_42px_rgba(0,0,0,0.8)]"
+            />
+          </div>
+
+          {/* Timed DotNav + Play/Pause Controls */}
+          <div className="mt-5 flex items-center gap-2.5 sm:mt-6">
+            <div
+              role="tablist"
+              aria-label="Chọn sản phẩm tâm điểm"
+              className="inline-flex items-center gap-2 rounded-full bg-white/[0.11] px-3.5 py-2 ring-1 ring-white/15 backdrop-blur-md"
+            >
+              {FLAGSHIP_SLIDES.map((slide, index) => {
+                const selected = index === slideIndex;
+                return (
+                  <button
+                    key={slide.name}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    aria-label={`Hiển thị ${slide.name}`}
+                    onClick={() => setSlideIndex(index)}
+                    className={`relative h-2 cursor-pointer overflow-hidden rounded-full transition-all duration-300 ${
+                      selected ? 'w-8 bg-white/30' : 'w-2 bg-white/45 hover:bg-white/75'
+                    }`}
+                  >
+                    {selected && autoAdvancing && (
+                      <span
+                        key={`progress-${slideIndex}-${autoAdvancing}`}
+                        className="animate-slide-progress absolute inset-0 rounded-full bg-white"
+                      />
+                    )}
+                    {selected && !autoAdvancing && (
+                      <span className="absolute inset-0 rounded-full bg-white" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setUserPaused((paused) => !paused)}
+              aria-label={userPaused ? 'Phát chuyển cảnh tự động' : 'Tạm dừng chuyển cảnh tự động'}
+              aria-pressed={userPaused}
+              className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/[0.11] text-white/90 ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-white/20 active:scale-[0.95] motion-safe-transform"
+            >
+              {userPaused || reducedMotion ? (
+                <Play className="size-3.5 fill-current" aria-hidden="true" />
+              ) : (
+                <Pause className="size-3.5 fill-current" aria-hidden="true" />
+              )}
+            </button>
+          </div>
         </div>
-        <figure className="relative flex items-center justify-center bg-white">
-          <ProductImage
-            imageUrl="/catalog/photos/sony-wh-1000xm3.webp"
-            alt="Tai nghe Sony WH-1000XM3"
-            className="h-40 w-full object-contain p-3 sm:h-60 md:h-80 md:p-6"
-          />
-          <figcaption className="absolute right-4 bottom-3 rounded bg-[#eaf0f4] px-2 py-1 text-xs font-medium text-slate-700 sm:right-5 sm:bottom-4">
-            Sony WH-1000XM3
-          </figcaption>
-        </figure>
       </section>
 
-      <section id="san-pham" aria-labelledby="catalog-heading" className="scroll-mt-28">
+      {/* 2. 2-Up Editorial Bento Showcase (Light vs Dark Contrast) */}
+      <section aria-label="Bộ đôi thiết bị nổi bật" className="mx-auto max-w-[1440px] px-3 pt-3 sm:px-3.5 sm:pt-3.5">
+        <div className="grid gap-3 md:grid-cols-2 sm:gap-3.5">
+          {BENTO_TILES.map((tile) => {
+            const isDark = tile.theme === 'dark';
+            return (
+              <div
+                key={tile.name}
+                className={`group relative flex min-w-0 flex-col items-center justify-between overflow-hidden rounded-3xl px-5 pt-9 pb-6 text-center transition-transform duration-300 sm:px-8 sm:pt-11 sm:pb-8 ${
+                  isDark
+                    ? 'bg-[#0D1017] text-white'
+                    : 'bg-white text-[#1D1D1F]'
+                }`}
+              >
+                {isDark && (
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      background:
+                        'radial-gradient(circle at 50% 68%, rgba(148, 163, 184, 0.22) 0%, rgba(13, 16, 23, 0) 68%)',
+                    }}
+                    className="pointer-events-none absolute inset-0"
+                  />
+                )}
+
+                <div className="relative z-10 flex flex-col items-center">
+                  <p
+                    className={`text-xs font-semibold ${
+                      isDark ? 'text-[#A1A1A6]' : 'text-[#6E6E73]'
+                    }`}
+                  >
+                    {tile.eyebrow}
+                  </p>
+                  <h2 className="mt-1 text-2xl font-extrabold tracking-[-0.03em] text-balance sm:text-3xl lg:text-[2rem]">
+                    {tile.name}
+                  </h2>
+                  <p
+                    className={`mt-1.5 max-w-md text-sm leading-snug text-balance sm:text-base ${
+                      isDark ? 'text-[#F5F5F7]/85' : 'text-[#515154]'
+                    }`}
+                  >
+                    {tile.subhead}
+                  </p>
+                  <p
+                    className={`mt-1.5 text-xs font-medium tabular-nums sm:text-sm ${
+                      isDark ? 'text-[#A1A1A6]' : 'text-[#6E6E73]'
+                    }`}
+                  >
+                    {formatCurrencyVND(tile.price)}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => openProductByName(tile.name)}
+                      className={`inline-flex min-h-9 cursor-pointer items-center justify-center rounded-full px-4 text-xs font-semibold transition-all duration-200 active:scale-[0.97] motion-safe-transform sm:text-[13px] ${
+                        isDark
+                          ? 'bg-[#0066CC] text-white hover:bg-[#0077ED]'
+                          : 'bg-[#1D1D1F] text-white hover:bg-[#333336]'
+                      }`}
+                    >
+                      Mua ngay
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => filterByCategorySlug(tile.categorySlug, tile.name)}
+                      className={`inline-flex min-h-9 cursor-pointer items-center justify-center rounded-full px-4 text-xs font-semibold transition-colors duration-200 active:scale-[0.97] motion-safe-transform sm:text-[13px] ${
+                        isDark
+                          ? 'border border-white/25 text-white hover:bg-white/10'
+                          : 'border border-black/15 text-[#1D1D1F] hover:bg-black/[0.04]'
+                      }`}
+                    >
+                      {tile.categoryLabel}
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => openProductByName(tile.name)}
+                  role="presentation"
+                  className="relative z-10 mt-5 flex h-48 w-full max-w-lg cursor-pointer items-center justify-center sm:mt-6 sm:h-60"
+                >
+                  <ProductImage
+                    imageUrl={tile.imageUrl}
+                    alt={tile.alt}
+                    loading="lazy"
+                    className={`max-h-full max-w-full object-contain transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05] motion-safe-transform ${
+                      isDark
+                        ? 'drop-shadow-[0_20px_30px_rgba(0,0,0,0.65)]'
+                        : 'scale-[1.08] mix-blend-multiply contrast-[1.03] brightness-[1.02]'
+                    }`}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 3. Borderless Storefront Catalog (#san-pham) */}
+      <section
+        id="san-pham"
+        aria-labelledby="catalog-heading"
+        className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-10 pb-4 sm:px-6 sm:pt-14 lg:px-8"
+      >
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="catalog-heading" className="text-2xl font-bold text-[#162c3c] sm:text-3xl">
-            Danh mục sản phẩm
+          <h2
+            id="catalog-heading"
+            className="max-w-2xl text-2xl leading-tight font-extrabold tracking-[-0.03em] text-balance sm:text-3xl"
+          >
+            <span className="text-[#1D1D1F]">Cửa Hàng.</span>{' '}
+            <span className="font-semibold text-[#6E6E73]">
+              Chọn thiết bị hợp nhất với công việc của bạn.
+            </span>
           </h2>
-          <p role="status" className="text-sm text-slate-600 tabular-nums">
+          <p role="status" className="text-xs font-medium text-[#6E6E73] tabular-nums sm:text-sm">
             {catalogBusy ? 'Đang tải sản phẩm…' : !catalogError && `${totalProducts} sản phẩm`}
           </p>
         </div>
 
-        {/* Filter & Search Bar */}
-        <div aria-label="Bộ lọc sản phẩm" role="group" className="mt-4 space-y-3 border-y border-slate-200 py-3 sm:mt-5">
-          {/* Category Pills */}
-          <div className="flex flex-wrap gap-1.5">
-            {[{ id: '', name: 'Tất cả' }, ...categories].map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                aria-pressed={selectedCategory === category.id}
-                onClick={() => chooseCategory(category.id)}
-                className="min-h-10 cursor-pointer rounded-md px-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 aria-pressed:bg-[#e1ecf3] aria-pressed:text-[#153e59] sm:px-3"
-              >
-                {category.name}
-              </button>
-            ))}
-            {categoryError && (
-              <button type="button" onClick={() => setReloadCount((count) => count + 1)} className="cursor-pointer px-3 text-sm text-blue-700 underline">
-                Tải lại danh mục
-              </button>
-            )}
-          </div>
-
-          {/* Search & Sort */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
-            <div className="relative w-full sm:max-w-md">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
+        {/* Sleek Floating Filter & Search Toolbar */}
+        <div
+          aria-label="Bộ lọc sản phẩm"
+          role="group"
+          className="mt-5 min-w-0 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_2px_14px_rgba(0,0,0,0.03)] sm:mt-6 sm:rounded-3xl sm:p-4"
+        >
+          {/* Row 1: Pill Search + Sort side-by-side even on mobile */}
+          <div className="grid grid-cols-[1fr_auto] items-center gap-2 sm:gap-3">
+            <div className="relative min-w-0">
+              <Search
+                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#6E6E73]"
+                aria-hidden="true"
+              />
               <input
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Tìm sản phẩm"
+                placeholder="Tìm iPhone, MacBook, màn hình…"
                 aria-label="Tìm kiếm sản phẩm"
-                className="min-h-11 w-full rounded-md border border-slate-300 bg-white pr-3 pl-9 text-sm text-slate-900"
+                className="min-h-10 w-full rounded-full bg-[#F5F5F7] pr-8 pl-9 text-sm text-[#1D1D1F] placeholder:text-[#6E6E73] transition-colors focus:bg-[#EBEBF0] sm:min-h-11 sm:pl-10 [&::-webkit-search-cancel-button]:appearance-none"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setKeyword('');
+                    setPage(0);
+                  }}
+                  aria-label="Xóa từ khóa tìm kiếm"
+                  className="absolute top-1/2 right-1.5 inline-flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-[#515154] transition-colors hover:bg-black/[0.08] hover:text-[#1D1D1F]"
+                >
+                  <X className="size-3.5" aria-hidden="true" />
+                </button>
+              )}
             </div>
+
             <select
               value={sortDir}
               onChange={(e) => {
@@ -238,36 +604,102 @@ export default function HomePage() {
                 setPage(0);
               }}
               aria-label="Sắp xếp theo giá"
-              className="min-h-11 cursor-pointer rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700"
+              className="min-h-10 max-w-[9.5rem] cursor-pointer rounded-full bg-[#F5F5F7] px-3 text-xs font-semibold text-[#1D1D1F] transition-colors hover:bg-[#EBEBF0] sm:min-h-11 sm:max-w-none sm:px-4 sm:text-sm"
             >
-              <option value="asc">Giá từ thấp đến cao</option>
-              <option value="desc">Giá từ cao đến thấp</option>
+              <option value="asc">Giá thấp đến cao</option>
+              <option value="desc">Giá cao đến thấp</option>
             </select>
           </div>
+
+          {/* Row 2: Pill Category Rail */}
+          <div className="no-scrollbar -mx-1 mt-2.5 flex items-center gap-1.5 overflow-x-auto px-1 py-0.5 sm:mt-3 sm:flex-wrap sm:overflow-visible">
+            {[{ id: '', name: 'Tất cả' }, ...categories].map((category) => {
+              const active = selectedCategory === category.id;
+              return (
+                <button
+                  key={category.id || 'all'}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => chooseCategory(category.id)}
+                  className={`inline-flex min-h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold whitespace-nowrap transition-all duration-200 active:scale-[0.97] motion-safe-transform sm:min-h-9.5 sm:px-4 sm:text-[13px] ${
+                    active
+                      ? 'bg-[#1D1D1F] text-white shadow-xs'
+                      : 'bg-[#F5F5F7] text-[#515154] hover:bg-[#E8E8ED] hover:text-[#1D1D1F]'
+                  }`}
+                >
+                  {active && (
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-[#2997FF]" />
+                  )}
+                  {category.name}
+                </button>
+              );
+            })}
+            {categoryError && (
+              <button
+                type="button"
+                onClick={() => setReloadCount((count) => count + 1)}
+                className="min-h-9 shrink-0 cursor-pointer rounded-full px-3 text-xs font-semibold whitespace-nowrap text-[#0066CC] underline underline-offset-4 sm:text-sm"
+              >
+                Tải lại danh mục
+              </button>
+            )}
+          </div>
+
+          {/* Active Filter Summary */}
+          {hasActiveFilter && (
+            <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-black/[0.06] pt-2.5 text-xs text-[#515154]">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span>Đang hiển thị:</span>
+                {selectedCategoryObj && (
+                  <span className="inline-flex items-center rounded-full bg-[#E8F2FF] px-2.5 py-0.5 font-semibold text-[#0066CC]">
+                    {selectedCategoryObj.name}
+                  </span>
+                )}
+                {keyword && (
+                  <span className="inline-flex items-center rounded-full bg-[#F5F5F7] px-2.5 py-0.5 font-semibold text-[#1D1D1F]">
+                    “{keyword}”
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="inline-flex min-h-7 cursor-pointer items-center rounded-full px-2.5 font-semibold text-[#0066CC] transition-colors hover:bg-[#E8F2FF]"
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Product Grid */}
-        <div className="mt-5" aria-busy={catalogBusy}>
+        {/* Borderless Product Grid */}
+        <div className="mt-5 sm:mt-7" aria-busy={catalogBusy}>
           {catalogBusy ? (
             <div className={productGrid} aria-hidden="true">
               {Array.from({ length: 8 }, (_, index) => (
-                <div key={index} className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-                  <div className="aspect-4/3 bg-slate-100" />
-                  <div className="space-y-3 p-3 sm:p-4">
-                    <div className="h-3 w-1/2 rounded bg-slate-100" />
-                    <div className="h-4 w-4/5 rounded bg-slate-100" />
-                    <div className="mt-10 h-6 w-2/3 rounded bg-slate-100" />
+                <div
+                  key={index}
+                  className="flex flex-col overflow-hidden rounded-2xl bg-white p-3 sm:rounded-3xl sm:p-5"
+                >
+                  <div className="aspect-4/3 animate-pulse rounded-xl bg-[#F5F5F7]" />
+                  <div className="mt-4 space-y-2.5">
+                    <div className="h-3 w-1/3 animate-pulse rounded-full bg-[#F5F5F7]" />
+                    <div className="h-4 w-4/5 animate-pulse rounded-full bg-[#F5F5F7]" />
+                    <div className="mt-4 h-5 w-1/2 animate-pulse rounded-full bg-[#F5F5F7]" />
+                    <div className="h-9 w-full animate-pulse rounded-full bg-[#F5F5F7]" />
                   </div>
                 </div>
               ))}
             </div>
           ) : catalogError || products.length === 0 ? (
-            <div className="space-y-3 rounded-lg border border-slate-200 bg-white px-5 py-10 text-center">
-              <p className="font-semibold text-slate-900">
-                {catalogError ? 'Chưa tải được sản phẩm' : 'Không tìm thấy sản phẩm phù hợp'}
+            <div className="space-y-3 rounded-3xl bg-white px-5 py-14 text-center shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+              <p className="text-base font-bold text-[#1D1D1F]">
+                {catalogError ? 'Chưa tải được danh sách sản phẩm' : 'Không tìm thấy thiết bị phù hợp'}
               </p>
-              <p className="text-sm text-slate-600">
-                {catalogError ? 'Thử tải lại danh sách.' : 'Hãy thử từ khóa khác hoặc chọn danh mục khác.'}
+              <p className="mx-auto max-w-md text-sm text-[#515154]">
+                {catalogError
+                  ? 'Kết nối tạm thời gián đoạn. Hãy thử tải lại danh mục.'
+                  : 'Hãy thử từ khóa ngắn hơn hoặc chọn nhóm thiết bị khác.'}
               </p>
               <button
                 type="button"
@@ -275,14 +707,12 @@ export default function HomePage() {
                   if (catalogError) {
                     setReloadCount((count) => count + 1);
                   } else {
-                    chooseCategory('');
-                    setSearchTerm('');
-                    setKeyword('');
+                    resetFilters();
                   }
                 }}
-                className="min-h-10 cursor-pointer px-3 text-sm font-semibold text-blue-700 underline underline-offset-4"
+                className="mt-1 inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full bg-[#0066CC] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#0055B3] active:scale-[0.97] motion-safe-transform"
               >
-                {catalogError ? 'Tải lại sản phẩm' : 'Đặt lại bộ lọc'}
+                {catalogError ? 'Tải lại sản phẩm' : 'Xem tất cả sản phẩm'}
               </button>
             </div>
           ) : (
@@ -296,49 +726,77 @@ export default function HomePage() {
                 return (
                   <article
                     key={product.id}
-                    className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white"
+                    className="group/card flex min-w-0 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.025)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(0,0,0,0.08)] motion-safe-transform sm:rounded-3xl"
                   >
-                    <Link to={`/products/${product.id}`} aria-label={product.name} className="group block focus-visible:outline-offset-[-3px]">
-                      <div className="aspect-4/3 overflow-hidden border-b border-slate-100 bg-white">
+                    {/* 1. Ảnh → 2. Tên */}
+                    <Link
+                      to={`/products/${product.id}`}
+                      aria-label={product.name}
+                      className="group block focus-visible:-outline-offset-2"
+                    >
+                      <div className="relative aspect-4/3 overflow-hidden bg-white px-3 pt-4 pb-2 sm:px-5 sm:pt-6 sm:pb-3">
                         <ProductImage
                           imageUrl={product.imageUrl}
                           alt=""
                           loading="lazy"
-                          className="size-full object-contain p-2 sm:p-3"
+                          className="size-full object-contain transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.045] motion-safe-transform"
                         />
+                        {(outOfStock || lowStock) && (
+                          <span
+                            className={`absolute top-3 left-3 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                              outOfStock
+                                ? 'bg-[#1D1D1F]/85 text-white'
+                                : 'bg-amber-50 text-amber-900 ring-1 ring-amber-200'
+                            }`}
+                          >
+                            {outOfStock ? 'Hết hàng' : `Còn ${stock}`}
+                          </span>
+                        )}
                       </div>
-                      <div className="space-y-1 px-3 pt-3 sm:px-4 sm:pt-4">
-                        <p className="text-xs text-slate-600">{product.category?.name || 'Thiết bị'}</p>
-                        <h3 className="text-sm leading-snug font-bold text-slate-900 group-hover:underline sm:text-base">
+
+                      <div className="px-3.5 pt-2 sm:px-5 sm:pt-2.5">
+                        <p className="truncate text-[11px] font-medium text-[#6E6E73] sm:text-xs">
+                          {product.category?.name || 'Thiết bị'}
+                        </p>
+                        <h3 className="mt-0.5 line-clamp-2 min-h-[2.4rem] text-sm leading-snug font-bold text-[#1D1D1F] transition-colors group-hover:text-[#0066CC] sm:min-h-[2.65rem] sm:text-[15.5px]">
                           {product.name}
                         </h3>
                       </div>
                     </Link>
+
                     {product.description && (
-                      <p className="mx-3 mt-2 mb-3 line-clamp-2 text-xs leading-relaxed text-slate-600 sm:mx-4 sm:text-sm">
+                      <p className="mx-3.5 mt-1 line-clamp-1 text-xs leading-relaxed text-[#6E6E73] sm:mx-5">
                         {product.description}
                       </p>
                     )}
-                    <div className="mt-auto flex flex-wrap items-center justify-between gap-1.5 px-3 pt-1 pb-3 sm:px-4 sm:pb-4">
-                      <div>
-                        <p className="text-sm font-extrabold text-[#193d57] tabular-nums sm:text-base">
-                          {formatCurrencyVND(product.price)}
-                        </p>
-                        {(outOfStock || lowStock) && (
-                          <p className="text-xs font-medium text-amber-800">
-                            {outOfStock ? 'Hết hàng' : `Còn ${stock} sản phẩm`}
-                          </p>
-                        )}
-                      </div>
+
+                    {/* 3. Giá → 4. Hành động mua dạng viên thuốc tinh tế */}
+                    <div className="mt-auto space-y-2.5 px-3.5 pt-3 pb-3.5 sm:space-y-3 sm:px-5 sm:pt-4 sm:pb-5">
+                      <p className="text-[15px] font-semibold tracking-[-0.015em] text-[#1D1D1F] tabular-nums sm:text-[17px]">
+                        {formatCurrencyVND(product.price)}
+                      </p>
+
                       <button
                         type="button"
                         disabled={outOfStock || addingId !== null}
                         onClick={() => handleAddToCart(product)}
-                        aria-label={adding ? `Đang thêm ${product.name}` : `Thêm ${product.name} vào giỏ hàng`}
-                        title={outOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
-                        className="inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-slate-200 text-[#193d57] hover:border-[#193d57] hover:bg-[#eaf0f4] enabled:cursor-pointer disabled:opacity-40"
+                        aria-label={
+                          outOfStock
+                            ? `${product.name} tạm hết hàng`
+                            : adding
+                              ? `Đang thêm ${product.name}`
+                              : `Thêm ${product.name} vào giỏ hàng`
+                        }
+                        className={`inline-flex min-h-9.5 w-full items-center justify-center gap-1.5 rounded-full px-3 text-xs font-semibold whitespace-nowrap transition-all duration-200 sm:min-h-10 sm:text-[13px] ${
+                          outOfStock
+                            ? 'cursor-not-allowed bg-[#F5F5F7] text-[#86868B]'
+                            : 'bg-[#F2F2F7] text-[#1D1D1F] enabled:cursor-pointer enabled:group-hover/card:bg-[#0066CC] enabled:group-hover/card:text-white enabled:hover:!bg-[#0055B3] enabled:hover:!text-white enabled:focus-visible:bg-[#0066CC] enabled:focus-visible:text-white enabled:active:scale-[0.96] motion-safe-transform disabled:opacity-50'
+                        }`}
                       >
-                        <ShoppingCart className="size-4" aria-hidden="true" />
+                        {!outOfStock && <ShoppingBag className="size-3.5 shrink-0" aria-hidden="true" />}
+                        <span>
+                          {outOfStock ? 'Tạm hết hàng' : adding ? 'Đang thêm…' : 'Thêm vào giỏ'}
+                        </span>
                       </button>
                     </div>
                   </article>
@@ -350,15 +808,25 @@ export default function HomePage() {
 
         {/* Pagination */}
         {!catalogBusy && !catalogError && totalPages > 1 && (
-          <nav aria-label="Phân trang sản phẩm" className="mt-6 flex items-center justify-center gap-2">
-            <button type="button" disabled={page === 0} onClick={() => setPage(page - 1)} className={pageButton}>
+          <nav aria-label="Phân trang sản phẩm" className="mt-8 flex items-center justify-center gap-2.5 sm:mt-10 sm:gap-3.5">
+            <button
+              type="button"
+              disabled={page === 0}
+              onClick={() => setPage(page - 1)}
+              className={pageButton}
+            >
               <ChevronLeft className="size-4" aria-hidden="true" />
               Trang trước
             </button>
-            <span className="px-1 text-xs text-slate-600 tabular-nums sm:px-3 sm:text-sm">
+            <span className="px-2 text-xs font-semibold text-[#515154] tabular-nums sm:px-3 sm:text-sm">
               Trang {page + 1} / {totalPages}
             </span>
-            <button type="button" disabled={page + 1 >= totalPages} onClick={() => setPage(page + 1)} className={pageButton}>
+            <button
+              type="button"
+              disabled={page + 1 >= totalPages}
+              onClick={() => setPage(page + 1)}
+              className={pageButton}
+            >
               Trang sau
               <ChevronRight className="size-4" aria-hidden="true" />
             </button>

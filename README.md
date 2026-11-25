@@ -1,214 +1,261 @@
-# The Tech Shop
+<h1 align="center">The Tech Shop</h1>
 
-Ứng dụng thương mại điện tử bán thiết bị công nghệ, xây dựng bằng React, Spring Boot và PostgreSQL. Dự án triển khai luồng mua hàng từ tìm kiếm sản phẩm đến đặt đơn, cùng trang quản trị sản phẩm và đơn hàng.
+<p align="center">
+  Cửa hàng thiết bị công nghệ — từ khám phá sản phẩm đến quản lý đơn hàng.
+  <br />
+  Xây dựng với React, Spring Boot và PostgreSQL.
+</p>
 
-[![Build and test](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml"><img src="https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml/badge.svg?branch=main" alt="Build and test" /></a>
+  <img src="https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white" alt="Java 17" />
+  <img src="https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white" alt="React 18" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 16" />
+</p>
 
-[Dùng thử](https://the-tech-shop-storefront.onrender.com/) · [Tài liệu API](https://the-tech-shop-storefront.onrender.com/swagger-ui/index.html) · [GitHub Actions](https://github.com/conglam56/E-Commerce/actions)
+<p align="center">
+  <a href="https://the-tech-shop-storefront.onrender.com/"><strong>Xem demo</strong></a>
+  · <a href="https://the-tech-shop-storefront.onrender.com/swagger-ui/index.html">Tài liệu API</a>
+  · <a href="#chạy-nhanh">Chạy nhanh</a>
+  · <a href="https://github.com/conglam56/E-Commerce/actions">CI / Build</a>
+</p>
 
-Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. COD là luồng đặt hàng chính, chuyển khoản được mô phỏng. Bạn có thể đăng ký tài khoản để dùng thử giỏ hàng, đặt đơn và xem hồ sơ.
+![Giao diện trang chủ The Tech Shop](docs/screenshots/storefront.png)
 
-Render Free có thể mất thời gian khởi động khi mở lại sau một khoảng không có truy cập. [Thông tin gói miễn phí](https://render.com/docs/free)
+The Tech Shop là dự án thương mại điện tử full-stack dành cho thiết bị và phụ kiện công nghệ. Khách hàng có thể tìm sản phẩm, quản lý giỏ hàng, đặt đơn và xem hồ sơ; quản trị viên quản lý danh mục, sản phẩm và tiến trình đơn hàng. Giá và tồn kho được kiểm tra ở backend khi đặt đơn.
 
-![Trang chủ The Tech Shop](docs/screenshots/storefront.png)
+> **Demo online:** [the-tech-shop-storefront.onrender.com](https://the-tech-shop-storefront.onrender.com/). Đăng ký tài khoản để dùng thử. Demo chạy trên Render Free nên lần truy cập đầu sau một thời gian không hoạt động có thể cần chờ khởi động.
 
-## Công nghệ
+## Mục lục
 
-| Phần | Công nghệ |
-| --- | --- |
-| Backend | Java 17+, Spring Boot 3.2, Spring Security, JWT, BCrypt |
-| Dữ liệu | PostgreSQL, Spring Data JPA, Flyway, MapStruct |
-| Frontend | React 18, React Router, Vite 6, Tailwind CSS 4, Axios |
-| Kiểm tra | JUnit 5, Mockito, kiểm thử API và trình duyệt trên dữ liệu QA |
-| CI | GitHub Actions với hai job kiểm tra backend và build frontend |
-| Triển khai | Render, Docker multi-stage, PostgreSQL riêng cho demo |
+- [Tính năng](#tính-năng)
+- [Giao diện](#giao-diện)
+- [Công nghệ và kiến trúc](#công-nghệ-và-kiến-trúc)
+- [Chạy nhanh](#chạy-nhanh)
+- [Phát triển cục bộ](#phát-triển-cục-bộ)
+- [Cấu hình](#cấu-hình)
+- [Tài khoản và phân quyền](#tài-khoản-và-phân-quyền)
+- [Kiểm tra và đóng gói](#kiểm-tra-và-đóng-gói)
+- [Triển khai](#triển-khai)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Phạm vi demo](#phạm-vi-demo)
 
 ## Tính năng
 
-- Phân quyền CUSTOMER/ADMIN ở API và điều hướng tương ứng ở giao diện.
-- Đăng ký với thông báo lỗi ngay khi nhập và mật khẩu tối thiểu 6 ký tự. Sau khi đăng nhập, chọn avatar để xem họ tên, email và vai trò.
-- Đổi mật khẩu từ trang hồ sơ. Giao diện kiểm tra ngay khi nhập, gồm độ dài tối thiểu 6 ký tự và xác nhận mật khẩu. Server xác minh mật khẩu hiện tại rồi lưu mật khẩu mới bằng BCrypt.
-- Tìm kiếm, lọc danh mục, sắp xếp và phân trang phía máy chủ.
-- Nhập số lượng trực tiếp hoặc dùng nút tăng/giảm. Backend kiểm tra tồn kho và tính tiền.
-- Đặt hàng trong transaction, lưu giá tại thời điểm đặt, trừ kho và làm trống giỏ khi thành công.
-- Optimistic locking trên sản phẩm và đơn hàng. Cập nhật xung đột trả HTTP 409 và transaction được rollback.
-- Hủy đơn còn chờ xác nhận và hoàn tồn kho. Quản trị có thể hủy đơn đã xác nhận trước khi giao.
-- Giao diện responsive với trạng thái đang tải, lỗi, thử lại và giỏ trống.
-- Ảnh catalog có ảnh dự phòng khi CDN lỗi. Xem [ghi công ảnh](frontend/public/catalog/photo-credits.html).
+| Khu vực | Chức năng |
+| --- | --- |
+| **Cửa hàng** | Sản phẩm nổi bật, tìm kiếm, lọc danh mục, sắp xếp giá và phân trang phía server |
+| **Chi tiết sản phẩm** | Thư viện ảnh, mô tả, thông số tham khảo, giá và tồn kho; nhập số lượng trực tiếp hoặc dùng nút tăng/giảm |
+| **Tài khoản** | Đăng ký, đăng nhập bằng JWT, avatar chữ cái và hồ sơ cá nhân |
+| **Mật khẩu** | Kiểm tra ngay khi nhập ở đăng ký và đổi mật khẩu; tối thiểu 6 ký tự, xác nhận mật khẩu và kiểm tra mật khẩu hiện tại ở server |
+| **Giỏ hàng** | Thêm, cập nhật số lượng, xóa sản phẩm và tính tổng tiền ở backend |
+| **Đơn hàng** | Đặt hàng COD, xem lịch sử và chi tiết đơn, hủy đơn đủ điều kiện |
+| **Quản trị** | Quản lý sản phẩm, danh mục và cập nhật trạng thái đơn hàng; kiểm tra quyền ADMIN tại API |
+| **Toàn vẹn dữ liệu** | Transaction khi đặt/hủy đơn, lưu giá tại thời điểm đặt, trừ/hoàn tồn kho và optimistic locking để phát hiện xung đột |
 
-## Kiến trúc
+Luồng đơn hàng: `PENDING → CONFIRMED → SHIPPED → DELIVERED`. Khách hàng có thể hủy đơn `PENDING`; quản trị viên có thể hủy đơn `PENDING` hoặc `CONFIRMED`. Hủy thành công sẽ hoàn lại tồn kho.
 
-~~~mermaid
+## Giao diện
+
+Trang chủ có khu vực sản phẩm nổi bật, danh mục và lưới sản phẩm. Trang chi tiết hỗ trợ nhiều góc nhìn sản phẩm. Giao diện thích ứng với màn hình máy tính và điện thoại, có trạng thái tải, lỗi và dữ liệu trống.
+
+| Đặt hàng | Quản lý đơn hàng |
+| --- | --- |
+| ![Giỏ hàng và thông tin đặt hàng](docs/screenshots/checkout.png) | ![Trang quản trị đơn hàng](docs/screenshots/admin-orders.png) |
+
+[Xem giao diện đặt hàng trên điện thoại](docs/screenshots/checkout-mobile.png)
+
+## Công nghệ và kiến trúc
+
+| Thành phần | Công nghệ |
+| --- | --- |
+| Frontend | React 18, React Router, Vite 6, Tailwind CSS 4, Axios, Lucide |
+| Backend | Java 17, Spring Boot 3.2, Spring Security, JWT, BCrypt |
+| Dữ liệu | PostgreSQL 16, Spring Data JPA, Flyway, MapStruct |
+| Kiểm thử | JUnit 5, Mockito |
+| CI / Triển khai | GitHub Actions, Docker multi-stage, Render |
+
+```mermaid
 flowchart LR
-    Browser[React] -->|REST + JWT| API[Spring Boot]
+    Client[React] -->|REST API + JWT| API[Spring Boot]
     API --> Security[Spring Security]
-    API --> Services[Transactional services]
-    Services --> JPA[JPA + optimistic locking]
+    API --> Service[Transactional services]
+    Service --> JPA[Spring Data JPA]
     JPA --> DB[(PostgreSQL)]
     Flyway[Flyway migrations] --> DB
-~~~
+```
 
-## Chạy trên máy
+Trong môi trường phát triển, Vite chuyển tiếp `/api` đến Spring Boot. Trên Render, React được build vào ứng dụng Spring Boot để giao diện và API dùng chung tên miền.
 
-Cần JDK 17 trở lên, Maven 3.9 trở lên, Node.js 22 trở lên và PostgreSQL. Docker Compose có thể dùng để chạy riêng PostgreSQL.
+## Chạy nhanh
 
-~~~sh
+**Yêu cầu:** Git và Docker Desktop có Docker Compose.
+
+```sh
 git clone https://github.com/conglam56/E-Commerce.git
 cd E-Commerce
-~~~
+```
 
-### 1. Chuẩn bị cấu hình
+Sao chép cấu hình mẫu bằng PowerShell:
 
-Từ thư mục gốc của repo, sao chép tệp mẫu.
-
-~~~powershell
+```powershell
 Copy-Item .env.example .env
-~~~
+```
 
-Điền `DB_PASSWORD` bằng mật khẩu cục bộ của bạn. Tạo khóa JWT bằng PowerShell, rồi điền kết quả vào `JWT_SECRET`.
+Điền `DB_PASSWORD` và `JWT_SECRET` trong `.env`. Dùng lệnh dưới đây để tạo khóa JWT ngẫu nhiên, rồi sao chép kết quả vào `JWT_SECRET`:
 
-~~~powershell
+```powershell
 $jwtBytes = New-Object byte[] 48
 $jwtRng = [Security.Cryptography.RandomNumberGenerator]::Create()
 $jwtRng.GetBytes($jwtBytes)
 [Convert]::ToBase64String($jwtBytes)
 $jwtRng.Dispose()
-~~~
+```
 
-Spring Boot tự đọc `.env` khi chạy từ thư mục gốc. Biến môi trường của tiến trình có thể ghi đè các giá trị trong tệp. `.env` được Git bỏ qua.
+Khởi động toàn bộ ứng dụng:
 
-| Biến | Ý nghĩa |
-| --- | --- |
-| `DB_URL` | JDBC URL của PostgreSQL; mặc định cục bộ là `jdbc:postgresql://localhost:5434/e-commerce` |
-| `DB_USERNAME` | Tên người dùng database |
-| `DB_PASSWORD` | Mật khẩu database |
-| `JWT_SECRET` | Khóa ngẫu nhiên mã hóa Base64, ít nhất 32 byte trước khi mã hóa |
-| `JWT_EXPIRATION` | Thời hạn JWT theo mili giây; tệp mẫu dùng `3600000`, tương đương 1 giờ |
-
-### 2. Chạy cơ sở dữ liệu
-
-~~~sh
-docker compose up -d postgres
+```sh
+docker compose up -d --build
 docker compose ps
-~~~
+```
 
-PostgreSQL được ánh xạ vào cổng `5434`, database `e-commerce`. Nếu dùng PostgreSQL có sẵn, điều chỉnh `DB_URL`, `DB_USERNAME` và `DB_PASSWORD` cho đúng database đó.
+Mở **[localhost:3000](http://localhost:3000)**. Flyway tự khởi tạo schema và catalog mẫu khi backend kết nối database mới.
 
-Flyway áp dụng schema và dữ liệu mẫu khi backend khởi động. Hãy dùng một database riêng cho demo.
+| Dịch vụ | Địa chỉ |
+| --- | --- |
+| Giao diện Docker | [localhost:3000](http://localhost:3000) |
+| REST API | [localhost:8080/api](http://localhost:8080/api) |
+| Swagger UI | [localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) |
+| PostgreSQL | `localhost:5434`, database `e-commerce` |
 
-### 3. Chạy backend
+## Phát triển cục bộ
 
-~~~sh
+**Yêu cầu:** JDK 17+, Maven 3.9+, Node.js 22+ và PostgreSQL. Chuẩn bị `.env` như phần [Chạy nhanh](#chạy-nhanh).
+
+Chạy PostgreSQL bằng Docker, sau đó khởi động backend từ thư mục gốc:
+
+```sh
+docker compose up -d postgres
 mvn spring-boot:run
-~~~
+```
 
-API nằm tại `http://localhost:8080/api`.
+Mở terminal khác để chạy frontend:
 
-### 4. Chạy frontend trong terminal khác
-
-~~~sh
+```sh
 cd frontend
 npm ci
 npm run dev
-~~~
+```
 
-Mở `http://localhost:5173`. Frontend mặc định gọi `/api` qua proxy Vite. Khi cần một API ở host khác, đặt `VITE_API_BASE_URL` trong môi trường build frontend.
+Truy cập **[localhost:5173](http://localhost:5173)**. Vite mặc định proxy `/api` đến `http://localhost:8080`.
 
-### Chạy toàn bộ bằng Docker
+Nếu đang chạy toàn bộ stack bằng Docker, dừng hai dịch vụ ứng dụng trước khi chạy Maven và Vite để tránh trùng cổng:
 
-Sau khi chuẩn bị `.env`, có thể dùng Docker Desktop để chạy cả frontend, backend và PostgreSQL.
+```sh
+docker compose stop frontend backend
+```
 
-~~~sh
-docker compose up -d --build
-docker compose ps
-~~~
+## Cấu hình
 
-| Dịch vụ | Địa chỉ cục bộ |
-| --- | --- |
-| Frontend qua Docker | [localhost:3000](http://localhost:3000) |
-| Frontend qua Vite | [localhost:5173](http://localhost:5173) |
-| Backend API | [localhost:8080/api](http://localhost:8080/api) |
-| Swagger UI | [localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) |
-| PostgreSQL qua Docker | `localhost:5434` |
+Spring Boot đọc `.env` khi được chạy từ thư mục gốc. Biến môi trường của tiến trình có thể ghi đè các giá trị trong tệp. `.env` được Git bỏ qua; chỉ commit tệp mẫu [.env.example](.env.example).
 
-Chọn cách chạy bằng Docker hoặc bằng Maven và Vite để tránh trùng cổng backend.
+| Biến | Mục đích | Giá trị / lưu ý |
+| --- | --- | --- |
+| `DB_URL` | JDBC URL PostgreSQL | Cục bộ: `jdbc:postgresql://localhost:5434/e-commerce` |
+| `DB_USERNAME` | Người dùng database | Tệp mẫu dùng `postgres` |
+| `DB_PASSWORD` | Mật khẩu database | Tự thiết lập trong môi trường chạy |
+| `JWT_SECRET` | Khóa ký JWT dạng Base64 | Ít nhất 32 byte ngẫu nhiên trước khi mã hóa |
+| `JWT_EXPIRATION` | Thời hạn JWT, mili giây | `3600000` tương đương 1 giờ |
+| `VITE_API_BASE_URL` | Địa chỉ API khi build frontend | Mặc định `/api`; đặt khi dùng API ở host khác |
+| `DEMO_ADMIN_EMAIL` | Email tài khoản demo cần cấp quyền ADMIN khi backend khởi động | Tùy chọn; tài khoản phải đã đăng ký và đang hoạt động |
 
-## Tài khoản và quyền quản trị
+## Tài khoản và phân quyền
 
-Tài khoản tự đăng ký có quyền **CUSTOMER**. Bản demo online đã được cấu hình tài khoản quản trị riêng; thông tin truy cập được cung cấp trực tiếp cho người dùng thử quản trị.
+Tài khoản đăng ký qua giao diện có quyền **CUSTOMER**. Chọn avatar trên thanh điều hướng để xem họ tên, email, vai trò và đổi mật khẩu.
 
-Để tạo quản trị viên trên máy, đăng ký một tài khoản qua giao diện, sau đó cấp quyền cho đúng email trong database cục bộ.
+Demo online có tài khoản quản trị được cấu hình riêng; thông tin truy cập được cung cấp trực tiếp cho người dùng thử quản trị.
 
-~~~sh
+<details>
+<summary><strong>Tạo quản trị viên trên máy</strong></summary>
+
+Đăng ký một tài khoản qua giao diện, rồi mở PostgreSQL cục bộ:
+
+```sh
 docker compose exec postgres psql -U postgres -d e-commerce
-~~~
+```
 
-~~~sql
+Thay email bên dưới bằng tài khoản vừa đăng ký. Dùng username database đã cấu hình nếu khác `postgres`.
+
+```sql
 UPDATE users SET role = 'ADMIN' WHERE email = 'your-demo-admin@example.com';
-~~~
+```
 
-Dùng username database bạn cấu hình nếu khác `postgres`. Đăng xuất rồi đăng nhập lại để giao diện nhận quyền mới.
+Đăng xuất rồi đăng nhập lại để nhận quyền mới. Khi triển khai demo, có thể dùng biến môi trường `DEMO_ADMIN_EMAIL` thay cho thao tác SQL; mật khẩu hiện có được giữ nguyên.
 
-Trên Render, biến môi trường `DEMO_ADMIN_EMAIL` chỉ định tài khoản đã đăng ký cần cấp quyền ADMIN lúc ứng dụng khởi động. Tài khoản phải đang hoạt động; mật khẩu được giữ nguyên.
-
-## Dùng thử
-
-1. Tìm sản phẩm, đổi danh mục và sắp xếp giá.
-2. Đăng ký tài khoản khách, mở hồ sơ từ avatar và thử đổi mật khẩu với dữ liệu không hợp lệ.
-3. Thêm sản phẩm và nhập trực tiếp số lượng trong giỏ.
-4. Nhập thông tin giao hàng minh họa, chọn COD và đặt đơn.
-5. Mở lịch sử đơn, đối chiếu tổng tiền và hủy một đơn đang chờ xác nhận.
-6. Đăng nhập quản trị, lọc đơn và chuyển qua các trạng thái hợp lệ.
-7. Thử truy cập API quản trị bằng tài khoản khách để thấy HTTP 403.
-
-~~~text
-PENDING -> CONFIRMED -> SHIPPED -> DELIVERED
-PENDING -> CANCELLED
-CONFIRMED -> CANCELLED
-~~~
-
-Một đơn đang giao chỉ có thể chuyển sang đã giao. Trạng thái kết thúc được giữ khi gửi lặp cùng cập nhật. Chuyển khoản mô phỏng chỉ ghi nhận lựa chọn thanh toán, không xác minh giao dịch ngân hàng.
+</details>
 
 ## Kiểm tra và đóng gói
 
-~~~sh
-mvn test
-mvn verify
-cd frontend
-npm ci
-npm run build
-~~~
+| Mục tiêu | Lệnh | Thư mục |
+| --- | --- | --- |
+| Chạy test backend | `mvn test` | Gốc repository |
+| Kiểm tra và đóng gói backend | `mvn verify` | Gốc repository |
+| Cài dependency frontend | `npm ci` | `frontend` |
+| Build frontend | `npm run build` | `frontend` |
 
-JAR được tạo ở `target/ecommerce-0.0.1-SNAPSHOT.jar`. Có thể chạy bằng lệnh sau từ thư mục gốc, với cấu hình database đã chuẩn bị.
+Test backend dùng JUnit và Mockito, không cần database cho `mvn test`. Các test kiểm tra xác thực, điều kiện đăng ký, cấp quyền admin demo, giỏ hàng, quy trình đặt/hủy đơn và xung đột tồn kho.
 
-~~~sh
+[GitHub Actions](.github/workflows/ci.yml) chạy `mvn verify` và build frontend cho mỗi push hoặc pull request.
+
+Sau `mvn verify`, chạy backend đã đóng gói với cấu hình database trong `.env`:
+
+```sh
 java -jar target/ecommerce-0.0.1-SNAPSHOT.jar
-~~~
+```
 
-Bộ test dùng Mockito nên không cần database cho `mvn test`. Surefire nạp Java agent từ dependency để chạy được trên các JVM hạn chế dynamic attach.
+## Triển khai
 
-Workflow ở [.github/workflows/ci.yml](.github/workflows/ci.yml) chạy `mvn verify` và `npm ci && npm run build` cho push và pull request.
+**Demo:** [the-tech-shop-storefront.onrender.com](https://the-tech-shop-storefront.onrender.com/)
 
-Các bài test backend bao phủ xác thực, điều kiện đăng ký, cấu hình tài khoản admin demo, giỏ hàng, quy trình đặt và hủy đơn, cùng xung đột tồn kho. Kiểm tra giao diện hồ sơ và luồng đổi mật khẩu đã được thực hiện bằng trình duyệt với database kiểm thử riêng.
+[render.yaml](render.yaml) khai báo một Web Service và một PostgreSQL riêng. [Dockerfile.render](Dockerfile.render) build React, đưa tài nguyên frontend vào Spring Boot, chạy `mvn verify` và tạo image chạy ứng dụng.
 
-## Ảnh demo
+Web Service và Blueprint của demo theo dõi nhánh **`main`**, với **Auto-Deploy: On Commit**. Push hoặc merge vào `main` sẽ kích hoạt Render build và kiểm tra sức khỏe trước khi cập nhật ứng dụng tại cùng URL.
 
-![Đặt hàng](docs/screenshots/checkout.png)
+Để triển khai trên tài khoản Render khác:
 
-![Quản lý đơn hàng](docs/screenshots/admin-orders.png)
+1. Tạo Blueprint từ repository này, chọn nhánh `main` và tệp `render.yaml`.
+2. Render tạo PostgreSQL, liên kết thông tin kết nối và sinh khóa JWT từ Blueprint.
+3. Sau khi deploy thành công, đăng ký tài khoản qua giao diện.
+4. Nếu cần quản trị demo, thêm `DEMO_ADMIN_EMAIL` trong Environment của Web Service và deploy lại.
 
-[Xem giao diện đặt hàng trên điện thoại](docs/screenshots/checkout-mobile.png)
+Xem [giới hạn Render Free](https://render.com/docs/free) trước khi dùng dịch vụ và database miễn phí lâu dài.
 
-## Triển khai trên Render
+## Cấu trúc dự án
 
-[Blueprint](render.yaml) dựng một Web Service từ [Dockerfile.render](Dockerfile.render) và một PostgreSQL riêng. Web Service phục vụ React và API Spring Boot cùng tên miền. Flyway khởi tạo danh mục mẫu khi kết nối database mới.
-
-Web Service và Blueprint hiện theo dõi nhánh **`main`**. Auto-Deploy được đặt thành **On Commit**. Khi code được push hoặc merge vào `main`, Render build image, chạy `mvn verify`, khởi động ứng dụng và kiểm tra sức khỏe trước khi cập nhật bản demo. Địa chỉ truy cập được giữ nguyên.
-
-Để triển khai trên tài khoản Render khác, tạo Blueprint từ repository này, chọn nhánh `main` và đường dẫn `render.yaml`. Blueprint tạo khóa JWT và lấy thông tin kết nối từ PostgreSQL. Khi muốn cấp quyền cho tài khoản demo, đăng ký tài khoản đó trước rồi thêm `DEMO_ADMIN_EMAIL` trong Environment của Web Service và deploy lại.
-
-Gói miễn phí thích hợp cho bản demo. Web Service có thể cần thời gian khởi động sau khi không có lượt truy cập, và PostgreSQL hết hạn sau 30 ngày. [Giới hạn gói miễn phí của Render](https://render.com/docs/free)
+```text
+E-Commerce/
+├── frontend/
+│   ├── public/catalog/            # Ảnh catalog và thông tin nguồn ảnh
+│   └── src/
+│       ├── components/            # Navbar, avatar, ảnh sản phẩm, form dùng chung
+│       ├── context/               # Trạng thái xác thực và giỏ hàng
+│       ├── pages/                 # Cửa hàng, hồ sơ, đơn hàng, quản trị
+│       └── utils/                 # Định dạng và nội dung catalog
+├── src/main/java/com/javaweb/ecommerce/
+│   ├── controller/                # REST endpoints
+│   ├── service/                   # Nghiệp vụ và transaction
+│   ├── repository/                # Truy cập dữ liệu qua JPA
+│   └── security/                  # Spring Security và JWT
+├── src/main/resources/db/migration/ # Schema và dữ liệu mẫu Flyway
+├── src/test/                      # Test backend
+├── docs/screenshots/              # Ảnh giao diện
+├── .github/workflows/ci.yml        # Kiểm tra tự động
+├── docker-compose.yml             # Stack phát triển cục bộ
+└── render.yaml                    # Hạ tầng demo trên Render
+```
 
 ## Phạm vi demo
 
-COD là luồng đặt hàng chính. Ngân hàng, vận chuyển và email chưa tích hợp dịch vụ thực tế. Ảnh hãng được tải từ CDN và có thể thay đổi theo nguồn. Khi dùng bản demo công khai, hãy nhập thông tin giao hàng minh họa.
+COD là luồng đặt hàng chính; chuyển khoản chỉ mô phỏng lựa chọn thanh toán. Cổng thanh toán, vận chuyển và email thực tế chưa được tích hợp. Dùng thông tin giao hàng minh họa khi thử đặt đơn trên demo công khai.
+
+Ảnh và thông số catalog phục vụ minh họa sản phẩm. Ảnh có nguồn từ CDN và có ảnh dự phòng khi không tải được; xem [thông tin nguồn ảnh](frontend/public/catalog/photo-credits.html).

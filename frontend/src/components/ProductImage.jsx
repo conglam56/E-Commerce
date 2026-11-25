@@ -2,8 +2,9 @@ import React from 'react';
 import { resolveProductImage } from '../utils/format';
 import officialProductPhotos from '../utils/officialProductPhotos';
 
-export default function ProductImage({ imageUrl, ...props }) {
-  const fallback = resolveProductImage(imageUrl);
+export default function ProductImage({ imageUrl, fallbackUrl, ...props }) {
+  const fallback = resolveProductImage(fallbackUrl || imageUrl);
+  const primary = officialProductPhotos.get(imageUrl) || resolveProductImage(imageUrl);
 
   const handleError = ({ currentTarget }) => {
     const currentSource = currentTarget.getAttribute('src');
@@ -16,5 +17,5 @@ export default function ProductImage({ imageUrl, ...props }) {
     }
   };
 
-  return <img {...props} src={officialProductPhotos.get(imageUrl) || fallback} onError={handleError} />;
+  return <img {...props} src={primary} onError={handleError} />;
 }
