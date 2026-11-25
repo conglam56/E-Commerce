@@ -14,12 +14,39 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [touched, setTouched] = useState({});
+
+  const validationErrors = {
+    fullName: fullName.trim() ? '' : 'Vui lòng nhập họ và tên.',
+    email: !email.trim()
+      ? 'Vui lòng nhập email.'
+      : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? '' : 'Email không hợp lệ.',
+    password: !password.trim()
+      ? 'Vui lòng nhập mật khẩu.'
+      : password.length < 6 ? 'Mật khẩu phải có ít nhất 6 ký tự.' : '',
+    confirmPassword: !confirmPassword.trim()
+      ? 'Vui lòng xác nhận mật khẩu.'
+      : password !== confirmPassword ? 'Mật khẩu xác nhận không khớp.' : '',
+  };
+
+  const handleChange = (field, setValue) => (event) => {
+    setValue(event.target.value);
+    setTouched((current) => ({ ...current, [field]: true }));
+    setError('');
+  };
+
+  const handleBlur = (event) => {
+    setTouched((current) => ({ ...current, [event.target.name]: true }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     setError('');
-    if (password !== confirmPassword) {
-      setError('Mật khẩu và xác nhận mật khẩu không khớp.');
+    setTouched({ fullName: true, email: true, password: true, confirmPassword: true });
+    const firstInvalidField = Object.keys(validationErrors).find((field) => validationErrors[field]);
+    if (firstInvalidField) {
+      e.currentTarget.elements.namedItem(firstInvalidField).focus();
       return;
     }
     setSubmitting(true);
@@ -52,7 +79,7 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div>
             <label
               htmlFor="reg-fullname"
@@ -62,13 +89,20 @@ export default function RegisterPage() {
             </label>
             <input
               id="reg-fullname"
+              name="fullName"
               type="text"
               required
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={handleChange('fullName', setFullName)}
+              onBlur={handleBlur}
+              aria-invalid={Boolean(touched.fullName && validationErrors.fullName)}
+              aria-describedby={touched.fullName && validationErrors.fullName ? 'reg-fullname-error' : undefined}
               placeholder="Nguyễn Văn A"
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
             />
+            {touched.fullName && validationErrors.fullName && (
+              <p id="reg-fullname-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.fullName}</p>
+            )}
           </div>
 
           <div>
@@ -80,14 +114,21 @@ export default function RegisterPage() {
             </label>
             <input
               id="reg-email"
+              name="email"
               type="email"
               required
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleChange('email', setEmail)}
+              onBlur={handleBlur}
+              aria-invalid={Boolean(touched.email && validationErrors.email)}
+              aria-describedby={touched.email && validationErrors.email ? 'reg-email-error' : undefined}
               placeholder="name@example.com"
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
             />
+            {touched.email && validationErrors.email && (
+              <p id="reg-email-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -99,14 +140,22 @@ export default function RegisterPage() {
             </label>
             <input
               id="reg-password"
+              name="password"
               type="password"
               required
               autoComplete="new-password"
+              minLength={6}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handleChange('password', setPassword)}
+              onBlur={handleBlur}
+              aria-invalid={Boolean(touched.password && validationErrors.password)}
+              aria-describedby={touched.password && validationErrors.password ? 'reg-password-error' : undefined}
               placeholder="Tối thiểu 6 ký tự"
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
             />
+            {touched.password && validationErrors.password && (
+              <p id="reg-password-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.password}</p>
+            )}
           </div>
 
           <div>
@@ -118,14 +167,21 @@ export default function RegisterPage() {
             </label>
             <input
               id="reg-confirm"
+              name="confirmPassword"
               type="password"
               required
               autoComplete="new-password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={handleChange('confirmPassword', setConfirmPassword)}
+              onBlur={handleBlur}
+              aria-invalid={Boolean(touched.confirmPassword && validationErrors.confirmPassword)}
+              aria-describedby={touched.confirmPassword && validationErrors.confirmPassword ? 'reg-confirm-error' : undefined}
               placeholder="Nhập lại mật khẩu"
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
             />
+            {touched.confirmPassword && validationErrors.confirmPassword && (
+              <p id="reg-confirm-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.confirmPassword}</p>
+            )}
           </div>
 
           <button

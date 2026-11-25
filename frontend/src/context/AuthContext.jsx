@@ -23,6 +23,7 @@ function decodeJwtPayload(token) {
       : [];
     return {
       email: payload.sub || '',
+      fullName: payload.fullName || '',
       roles,
       isAdmin: roles.includes('ROLE_ADMIN'),
     };

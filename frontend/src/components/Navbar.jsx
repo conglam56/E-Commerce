@@ -71,8 +71,8 @@ export default function Navbar() {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-2 border-l border-slate-200 pl-2">
-              <span className="hidden max-w-36 truncate text-xs text-slate-600 xl:inline" title={user?.email}>
-                {user?.email}
+              <span className="hidden max-w-36 truncate text-xs text-slate-600 xl:inline" title={user?.fullName || user?.email}>
+                {user?.fullName || user?.email}
               </span>
               <button
                 type="button"
