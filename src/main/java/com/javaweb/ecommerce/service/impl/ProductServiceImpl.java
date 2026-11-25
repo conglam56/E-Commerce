@@ -52,6 +52,7 @@ public class ProductServiceImpl implements ProductService {
         @Override
         public ProductResponse getProductById(UUID id) {
                 Product product = productRepository.findById(id)
+                                .filter(item -> item.getStatus() != ProductStatus.DELETED)
                                 .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm", id));
                 return productMapper.toProductResponse(product);
         }

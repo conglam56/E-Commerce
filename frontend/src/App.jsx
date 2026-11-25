@@ -80,10 +80,7 @@ export default function App() {
                 <BrandWordmark />
                 <p className="mt-1">Cửa hàng thiết bị công nghệ</p>
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                <a className="underline underline-offset-4" href="/catalog/photo-credits.html">Nguồn ảnh</a>
-                <span>© {new Date().getFullYear()} The Tech Shop</span>
-              </div>
+              <span>© {new Date().getFullYear()} The Tech Shop</span>
             </div>
           </footer>
         </div>
