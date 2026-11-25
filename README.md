@@ -57,7 +57,9 @@ Luồng đơn hàng: `PENDING → CONFIRMED → SHIPPED → DELIVERED`. Khách h
 
 ## Giao diện
 
-Trang chủ có khu vực sản phẩm nổi bật, danh mục và lưới sản phẩm. Trang chi tiết hỗ trợ nhiều góc nhìn sản phẩm. Giao diện thích ứng với màn hình máy tính và điện thoại, có trạng thái tải, lỗi và dữ liệu trống.
+Giao diện sử dụng logo khối mở mới, cùng hệ thống nút bấm và biểu mẫu thống nhất. Trang chủ có thanh tìm kiếm nhanh, sản phẩm nổi bật, danh mục và lưới sản phẩm. Trang chi tiết hỗ trợ nhiều góc nhìn sản phẩm. Giao diện thích ứng với màn hình máy tính và điện thoại, có trạng thái tải, lỗi và dữ liệu trống; hộp thoại quản lý sản phẩm hỗ trợ thao tác bằng bàn phím.
+
+Các ảnh bên dưới và ảnh trang chủ phía trên được chụp từ giao diện hiện tại với dữ liệu minh họa; thông tin tài khoản và đơn hàng trong ảnh không phải dữ liệu khách hàng thật.
 
 | Đặt hàng | Quản lý đơn hàng |
 | --- | --- |
