@@ -15,6 +15,7 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [reloadCount, setReloadCount] = useState(0);
   const [updatingItemId, setUpdatingItemId] = useState(null);
+  const [quantityInputs, setQuantityInputs] = useState({});
   const updatingRef = useRef(false);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function CartPage() {
   }, [loadingCart, reloadCount, setCart]);
 
   const handleUpdateQuantity = async (item, newQuantity) => {
-    if (updatingRef.current || newQuantity < 1) return;
+    if (updatingRef.current || !Number.isInteger(newQuantity) || newQuantity < 1) return;
     updatingRef.current = true;
     setError('');
     setNotice('');
@@ -56,6 +57,12 @@ export default function CartPage() {
       updatingRef.current = false;
       setUpdatingItemId(null);
     }
+  };
+
+  const handleQuantityCommit = (item, value) => {
+    setQuantityInputs((current) => ({ ...current, [item.id]: undefined }));
+    const newQuantity = Number(value);
+    if (newQuantity !== item.quantity) handleUpdateQuantity(item, newQuantity);
   };
 
   const handleRemoveItem = async (item) => {
@@ -181,9 +188,24 @@ export default function CartPage() {
                         >
                           <Minus className="size-4" aria-hidden="true" />
                         </button>
-                        <output className="min-w-8 text-center text-sm font-semibold text-slate-900 tabular-nums">
-                          {item.quantity}
-                        </output>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min="1"
+                          step="1"
+                          aria-label={`Số lượng ${item.productName}`}
+                          value={quantityInputs[item.id] ?? item.quantity}
+                          disabled={busy}
+                          onChange={(event) => setQuantityInputs((current) => ({
+                            ...current,
+                            [item.id]: event.target.value,
+                          }))}
+                          onBlur={(event) => handleQuantityCommit(item, event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') event.currentTarget.blur();
+                          }}
+                          className="h-11 w-10 min-w-0 text-center text-sm font-semibold text-slate-900 tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#193d57] disabled:opacity-35 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        />
                         <button
                           type="button"
                           disabled={busy}

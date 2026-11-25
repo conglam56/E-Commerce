@@ -177,7 +177,7 @@ export default function ProductDetailPage() {
             {!outOfStock && (
               <div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <span id="quantity-label" className="text-sm font-semibold text-slate-700">Số lượng</span>
+                  <label id="quantity-label" htmlFor="product-quantity" className="text-sm font-semibold text-slate-700">Số lượng</label>
                   <div role="group" aria-labelledby="quantity-label" className="inline-flex items-center overflow-hidden rounded-md border border-slate-300 bg-white">
                     <button
                       type="button"
@@ -188,9 +188,28 @@ export default function ProductDetailPage() {
                     >
                       <Minus className="size-4" aria-hidden="true" />
                     </button>
-                    <output className="min-w-10 text-center text-sm font-semibold text-slate-900 tabular-nums" aria-live="polite">
-                      {selectedQuantity}
-                    </output>
+                    <input
+                      id="product-quantity"
+                      type="number"
+                      inputMode="numeric"
+                      min="1"
+                      max={availableQuantity}
+                      step="1"
+                      value={quantity === '' ? '' : selectedQuantity}
+                      disabled={availableQuantity === 0 || submitting || loadingCart}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        if (value === '') setQuantity('');
+                        else if (Number.isInteger(Number(value))) {
+                          setQuantity(Math.min(availableQuantity, Math.max(1, Number(value))));
+                        }
+                      }}
+                      onBlur={() => setQuantity(Math.max(1, selectedQuantity))}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') event.currentTarget.blur();
+                      }}
+                      className="h-11 w-12 min-w-0 text-center text-sm font-semibold text-slate-900 tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#193d57] disabled:opacity-35 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
                     <button
                       type="button"
                       disabled={selectedQuantity >= availableQuantity || submitting || loadingCart}
