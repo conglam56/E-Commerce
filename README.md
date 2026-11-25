@@ -22,6 +22,7 @@ Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. Giá, tồn kho và t
 
 - Phân quyền CUSTOMER/ADMIN ở API và điều hướng tương ứng ở giao diện.
 - Đăng ký với thông báo lỗi ngay khi nhập. Sau khi đăng nhập, chọn avatar để xem họ tên, email và vai trò.
+- Đổi mật khẩu từ trang hồ sơ. Giao diện báo lỗi ngay khi nhập và server xác minh mật khẩu hiện tại trước khi lưu.
 - Tìm kiếm, lọc danh mục, sắp xếp và phân trang phía máy chủ.
 - Nhập số lượng trực tiếp hoặc dùng nút tăng/giảm. Backend kiểm tra tồn kho và tính tiền.
 - Đặt hàng trong transaction, lưu giá tại thời điểm đặt, trừ kho và làm trống giỏ khi thành công.

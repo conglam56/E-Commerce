@@ -1,5 +1,6 @@
 import React from 'react';
 import AccountAvatar from '../components/AccountAvatar';
+import ChangePasswordForm from '../components/ChangePasswordForm';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProfilePage() {
@@ -25,6 +26,7 @@ export default function ProfilePage() {
           </div>
         </dl>
       </section>
+      <ChangePasswordForm />
     </div>
   );
 }

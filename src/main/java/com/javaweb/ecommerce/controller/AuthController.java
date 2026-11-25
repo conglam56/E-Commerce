@@ -1,14 +1,18 @@
 package com.javaweb.ecommerce.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.javaweb.ecommerce.common.ApiResponse;
+import com.javaweb.ecommerce.dto.record.request.ChangePasswordRequest;
 import com.javaweb.ecommerce.dto.record.request.LoginRequest;
 import com.javaweb.ecommerce.dto.record.request.RegisterRequest;
 import com.javaweb.ecommerce.dto.record.response.AuthResponse;
+import com.javaweb.ecommerce.entity.User;
 import com.javaweb.ecommerce.service.AuthService;
 import com.javaweb.ecommerce.common.BaseController;
 import jakarta.validation.Valid;
@@ -28,5 +32,12 @@ public class AuthController extends BaseController {
     @PostMapping("/register")
     public ApiResponse<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
         return success(authService.register(registerRequest));
+    }
+
+    @PutMapping("/password")
+    public ApiResponse<Void> changePassword(@AuthenticationPrincipal User user,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(user, request);
+        return success(null);
     }
 }

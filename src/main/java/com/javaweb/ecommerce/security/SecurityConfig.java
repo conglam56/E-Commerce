@@ -46,7 +46,7 @@ public class SecurityConfig {
                             response.getWriter().write("{\"code\":401,\"message\":\"Vui lòng đăng nhập để tiếp tục.\"}");
                         }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**",
                                 "/api/categories/**")
