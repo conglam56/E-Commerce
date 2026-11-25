@@ -6,6 +6,8 @@ Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. Giá, tồn kho và t
 
 [![Build and test](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml)
 
+**[Mở bản demo trên Render](https://the-tech-shop-storefront.onrender.com/)**
+
 ![Trang chủ The Tech Shop](docs/screenshots/storefront.png)
 
 ## Công nghệ
