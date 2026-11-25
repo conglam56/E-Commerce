@@ -440,7 +440,7 @@ export default function ProductDetailPage() {
             </div>
 
             <p className="text-xs leading-relaxed text-[#6E6E73]">
-              Giá hiển thị đã gồm thuế. Bạn có thể rà soát lại số lượng và địa chỉ nhận hàng ở bước thanh toán trước khi xác nhận đơn.
+              Bạn có thể rà soát lại số lượng và địa chỉ nhận hàng ở bước thanh toán trước khi xác nhận đơn.
             </p>
           </div>
 

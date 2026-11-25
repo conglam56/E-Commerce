@@ -8,7 +8,7 @@ import { formatCurrencyVND } from '../utils/format';
 import { paymentLabel } from '../utils/orders';
 
 const inputClass =
-  'min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 disabled:opacity-50';
+  'shop-field min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 disabled:opacity-50';
 
 export default function CheckoutPage() {
   const { cart, setCart, loadingCart } = useAuth();
@@ -85,10 +85,10 @@ export default function CheckoutPage() {
             aria-hidden="true"
           />
           <div>
-            <h1 className="text-3xl font-bold text-[#162c3c]">
+            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
               Đã nhận đơn hàng
             </h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
               Đơn #{createdOrder.id.substring(0, 8).toUpperCase()} đang chờ xác
               nhận.
             </p>
@@ -96,34 +96,34 @@ export default function CheckoutPage() {
         </div>
         <section
           aria-label="Thông tin đơn vừa đặt"
-          className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 sm:p-7"
+          className="shop-panel space-y-5 rounded-lg border border-slate-200 bg-white p-5 sm:p-7"
         >
           <dl className="grid gap-5 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-slate-600">Người nhận</dt>
+              <dt className="text-[var(--text-secondary)]">Người nhận</dt>
               <dd className="mt-1 font-semibold">
                 {createdOrder.receiverName}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-600">Số điện thoại</dt>
+              <dt className="text-[var(--text-secondary)]">Số điện thoại</dt>
               <dd className="mt-1 font-semibold">{createdOrder.phoneNumber}</dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-slate-600">Địa chỉ giao hàng</dt>
+              <dt className="text-[var(--text-secondary)]">Địa chỉ giao hàng</dt>
               <dd className="mt-1 break-words">
                 {createdOrder.shippingAddress}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-600">Thanh toán</dt>
+              <dt className="text-[var(--text-secondary)]">Thanh toán</dt>
               <dd className="mt-1">
                 {paymentLabel(createdOrder.paymentMethod)}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-600">Tổng tiền</dt>
-              <dd className="mt-1 text-xl font-bold text-[#193d57] tabular-nums">
+              <dt className="text-[var(--text-secondary)]">Tổng tiền</dt>
+              <dd className="mt-1 text-xl font-bold text-[var(--text-primary)] tabular-nums">
                 {formatCurrencyVND(createdOrder.totalAmount)}
               </dd>
             </div>
@@ -153,13 +153,13 @@ export default function CheckoutPage() {
         <div className="flex flex-wrap gap-3">
           <Link
             to="/orders"
-            className="inline-flex min-h-11 items-center rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white hover:bg-[#285372]"
+            className="shop-button shop-button-primary inline-flex min-h-11 items-center rounded-md bg-[var(--accent-primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-hover)]"
           >
             Xem đơn hàng của tôi
           </Link>
           <Link
             to="/"
-            className="inline-flex min-h-11 items-center px-4 text-sm font-semibold text-[#193d57] underline underline-offset-4"
+            className="shop-button shop-button-text inline-flex min-h-11 items-center px-4 text-sm font-semibold text-[var(--text-primary)] underline underline-offset-4"
           >
             Tiếp tục mua sắm
           </Link>
@@ -172,7 +172,7 @@ export default function CheckoutPage() {
     return (
       <p
         role="status"
-        className="px-4 py-16 text-center text-sm text-slate-600"
+        className="px-4 py-16 text-center text-sm text-[var(--text-secondary)]"
       >
         Đang tải giỏ hàng…
       </p>
@@ -180,16 +180,16 @@ export default function CheckoutPage() {
   if (loadError)
     return (
       <div className="mx-auto max-w-xl space-y-4 px-4 py-16 text-center">
-        <h1 className="text-xl font-bold text-[#193d57]">
+        <h1 className="text-xl font-bold text-[var(--text-primary)]">
           Chưa tải được giỏ hàng
         </h1>
-        <p role="alert" className="text-sm text-slate-600">
+        <p role="alert" className="text-sm text-[var(--text-secondary)]">
           {loadError}
         </p>
         <button
           type="button"
           onClick={() => setReloadCount((count) => count + 1)}
-          className="min-h-11 cursor-pointer rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold"
+          className="shop-button shop-button-secondary min-h-11 cursor-pointer rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold"
         >
           Thử lại
         </button>
@@ -198,12 +198,12 @@ export default function CheckoutPage() {
   if (items.length === 0)
     return (
       <div className="mx-auto max-w-xl space-y-4 px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold text-[#193d57]">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">
           Giỏ hàng đang trống
         </h1>
         <Link
           to="/"
-          className="inline-flex min-h-11 items-center rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white"
+          className="shop-button shop-button-primary inline-flex min-h-11 items-center rounded-md bg-[var(--accent-primary)] px-4 text-sm font-semibold text-white"
         >
           Xem sản phẩm
         </Link>
@@ -214,12 +214,12 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       <Link
         to="/cart"
-        className="inline-flex min-h-10 items-center gap-2 text-sm text-slate-600 hover:underline"
+        className="shop-button shop-button-text inline-flex min-h-10 items-center gap-2 text-sm text-[var(--text-secondary)] hover:underline"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         Về giỏ hàng
       </Link>
-      <h1 className="text-3xl font-bold text-[#162c3c] sm:text-4xl">
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] sm:text-4xl">
         Đặt hàng
       </h1>
       {error && (
@@ -246,10 +246,10 @@ export default function CheckoutPage() {
       >
         <fieldset
           disabled={submitting}
-          className="min-w-0 space-y-6 rounded-lg border border-slate-200 bg-white p-5 sm:p-7"
+          className="shop-panel min-w-0 space-y-6 rounded-lg border border-slate-200 bg-white p-5 sm:p-7"
         >
           <legend className="sr-only">Thông tin nhận hàng và thanh toán</legend>
-          <h2 className="text-lg font-bold text-[#162c3c]">
+          <h2 className="text-lg font-bold text-[var(--text-primary)]">
             Thông tin người nhận hàng
           </h2>
           <div className="grid gap-5 sm:grid-cols-2">
@@ -330,18 +330,18 @@ export default function CheckoutPage() {
             ].map(([value, label, description]) => (
               <label
                 key={value}
-                className={`flex min-h-16 cursor-pointer items-start gap-3 rounded-md border p-4 ${paymentMethod === value ? 'border-[#193d57] bg-[#f0f5f8]' : 'border-slate-200'}`}
+                className={`flex min-h-16 cursor-pointer items-start gap-3 rounded-xl border p-4 ${paymentMethod === value ? 'border-[var(--accent-primary)] bg-[#EEF5FC]' : 'border-slate-200'}`}
               >
                 <input
                   type="radio"
                   name="paymentMethod"
                   checked={paymentMethod === value}
                   onChange={() => setPaymentMethod(value)}
-                  className="mt-1 accent-[#193d57]"
+                  className="mt-1 accent-[var(--accent-primary)]"
                 />
                 <span>
                   <span className="block text-sm font-semibold">{label}</span>
-                  <span className="mt-1 block text-xs leading-relaxed text-slate-600">
+                  <span className="mt-1 block text-xs leading-relaxed text-[var(--text-secondary)]">
                     {description}
                   </span>
                 </span>
@@ -352,11 +352,11 @@ export default function CheckoutPage() {
         {/* Order Review */}
         <aside
           aria-labelledby="checkout-summary"
-          className="min-w-0 space-y-5 rounded-lg border border-slate-200 bg-white p-5 sm:p-6 lg:sticky lg:top-24"
+          className="shop-panel min-w-0 space-y-5 rounded-lg border border-slate-200 bg-white p-5 sm:p-6 lg:sticky lg:top-24"
         >
           <h2
             id="checkout-summary"
-            className="text-lg font-bold text-[#162c3c]"
+            className="text-lg font-bold text-[var(--text-primary)]"
           >
             Đơn hàng của bạn
           </h2>
@@ -370,7 +370,7 @@ export default function CheckoutPage() {
                 />
                 <div className="min-w-0 text-sm">
                   <p className="font-semibold">{item.productName}</p>
-                  <p className="mt-1 text-slate-600 tabular-nums">
+                  <p className="mt-1 text-[var(--text-secondary)] tabular-nums">
                     {item.quantity} × {formatCurrencyVND(item.productPrice)}
                   </p>
                 </div>
@@ -383,14 +383,14 @@ export default function CheckoutPage() {
           </div>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <span className="text-sm font-semibold">Tổng cộng</span>
-            <strong className="text-xl text-[#193d57] tabular-nums">
+            <strong className="text-xl text-[var(--text-primary)] tabular-nums">
               {formatCurrencyVND(cart.totalPrice)}
             </strong>
           </div>
           <button
             type="submit"
             disabled={submitting}
-            className="min-h-12 w-full rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white enabled:cursor-pointer enabled:hover:bg-[#285372] disabled:opacity-40"
+            className="shop-button shop-button-primary min-h-12 w-full rounded-md bg-[var(--accent-primary)] px-4 text-sm font-semibold text-white enabled:cursor-pointer enabled:hover:bg-[#285372] disabled:opacity-40"
           >
             {submitting ? 'Đang đặt hàng…' : 'Xác nhận đặt hàng'}
           </button>

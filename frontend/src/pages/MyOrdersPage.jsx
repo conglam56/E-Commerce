@@ -62,20 +62,20 @@ export default function MyOrdersPage() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-5 sm:px-6 sm:py-8">
       <Link
         to="/"
-        className="inline-flex min-h-10 items-center gap-2 text-sm text-slate-600 hover:underline"
+        className="shop-button shop-button-text inline-flex min-h-10 items-center gap-2 text-sm text-[var(--text-secondary)] hover:underline"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         Tiếp tục mua sắm
       </Link>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-3xl font-bold text-[#162c3c] sm:text-4xl">
+        <h1 className="text-3xl font-bold text-[var(--text-primary)] sm:text-4xl">
           Đơn hàng của tôi
         </h1>
         <button
           type="button"
           disabled={loading || cancellingId !== null}
           onClick={() => setReloadCount((count) => count + 1)}
-          className="min-h-10 rounded-md px-3 text-sm font-semibold text-[#193d57] underline underline-offset-4 enabled:cursor-pointer disabled:opacity-40"
+          className="shop-button shop-button-text min-h-10 rounded-md px-3 text-sm font-semibold text-[var(--text-primary)] underline underline-offset-4 enabled:cursor-pointer disabled:opacity-40"
         >
           Làm mới
         </button>
@@ -97,11 +97,11 @@ export default function MyOrdersPage() {
         </p>
       )}
       {loading ? (
-        <p role="status" className="py-10 text-center text-sm text-slate-600">
+        <p role="status" className="py-10 text-center text-sm text-[var(--text-secondary)]">
           Đang tải đơn hàng…
         </p>
       ) : loadError ? (
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-6">
+        <div className="shop-panel space-y-3 rounded-lg border border-slate-200 bg-white p-6">
           <p
             role="alert"
             className="flex items-center gap-2 text-sm text-red-800"
@@ -112,19 +112,19 @@ export default function MyOrdersPage() {
           <button
             type="button"
             onClick={() => setReloadCount((count) => count + 1)}
-            className="min-h-11 cursor-pointer text-sm font-semibold text-[#193d57] underline"
+            className="shop-button shop-button-text min-h-11 cursor-pointer text-sm font-semibold text-[var(--text-primary)] underline"
           >
             Tải lại đơn hàng
           </button>
         </div>
       ) : orders.length === 0 ? (
-        <div className="space-y-4 rounded-lg border border-slate-200 bg-white px-5 py-14 text-center">
-          <h2 className="text-xl font-bold text-[#162c3c]">
+        <div className="shop-panel space-y-4 rounded-lg border border-slate-200 bg-white px-5 py-14 text-center">
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">
             Bạn chưa có đơn hàng nào
           </h2>
           <Link
             to="/"
-            className="inline-flex min-h-11 items-center rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white"
+            className="shop-button shop-button-primary inline-flex min-h-11 items-center rounded-md bg-[var(--accent-primary)] px-4 text-sm font-semibold text-white"
           >
             Xem sản phẩm
           </Link>
@@ -136,12 +136,12 @@ export default function MyOrdersPage() {
             <article
               key={order.id}
               aria-label={`Đơn ${order.id.substring(0, 8).toUpperCase()}`}
-              className="overflow-hidden rounded-lg border border-slate-200 bg-white"
+              className="shop-panel overflow-hidden rounded-lg border border-slate-200 bg-white"
             >
               <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 p-4 sm:p-5">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold text-[#162c3c]">
+                    <h2 className="font-semibold text-[var(--text-primary)]">
                       Đơn #{order.id.substring(0, 8).toUpperCase()}
                     </h2>
                     <span
@@ -150,11 +150,11 @@ export default function MyOrdersPage() {
                       {badge.label}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600">
+                  <p className="text-xs text-[var(--text-secondary)]">
                     {formatDateTime(order.createdAt)}
                   </p>
                 </div>
-                <strong className="text-lg text-[#193d57] tabular-nums">
+                <strong className="text-lg text-[var(--text-primary)] tabular-nums">
                   {formatCurrencyVND(order.totalAmount)}
                 </strong>
               </header>
@@ -174,7 +174,7 @@ export default function MyOrdersPage() {
                       >
                         {item.productName}
                       </Link>
-                      <p className="mt-1 text-xs text-slate-600">
+                      <p className="mt-1 text-xs text-[var(--text-secondary)]">
                         Số lượng {item.quantity}
                       </p>
                     </div>
@@ -188,7 +188,7 @@ export default function MyOrdersPage() {
                 <dl className="space-y-2 text-sm">
                   <div>
                     <dt className="font-semibold">Giao đến</dt>
-                    <dd className="mt-1 break-words text-slate-600">
+                    <dd className="mt-1 break-words text-[var(--text-secondary)]">
                       {order.receiverName} · {order.phoneNumber}
                       <br />
                       {order.shippingAddress}
@@ -196,7 +196,7 @@ export default function MyOrdersPage() {
                   </div>
                   <div>
                     <dt className="sr-only">Thanh toán</dt>
-                    <dd className="text-slate-600">
+                    <dd className="text-[var(--text-secondary)]">
                       {paymentLabel(order.paymentMethod)}
                     </dd>
                   </div>
@@ -212,7 +212,7 @@ export default function MyOrdersPage() {
                           type="button"
                           disabled={cancellingId !== null}
                           onClick={() => handleCancelOrder(order.id)}
-                          className="min-h-11 rounded-md bg-red-700 px-3 text-sm font-semibold text-white enabled:cursor-pointer disabled:opacity-40"
+                          className="shop-button shop-button-danger min-h-11 rounded-md bg-red-700 px-3 text-sm font-semibold text-white enabled:cursor-pointer disabled:opacity-40"
                         >
                           {cancellingId === order.id
                             ? 'Đang hủy…'
@@ -222,7 +222,7 @@ export default function MyOrdersPage() {
                           type="button"
                           disabled={cancellingId !== null}
                           onClick={() => setConfirmId(null)}
-                          className="min-h-11 rounded-md border border-slate-300 px-3 text-sm font-semibold enabled:cursor-pointer"
+                          className="shop-button shop-button-secondary min-h-11 rounded-md border border-slate-300 px-3 text-sm font-semibold enabled:cursor-pointer"
                         >
                           Giữ đơn hàng
                         </button>
@@ -233,7 +233,7 @@ export default function MyOrdersPage() {
                       type="button"
                       disabled={cancellingId !== null}
                       onClick={() => setConfirmId(order.id)}
-                      className="min-h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 enabled:cursor-pointer enabled:hover:bg-slate-100"
+                      className="shop-button shop-button-secondary min-h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-[var(--text-secondary)] enabled:cursor-pointer enabled:hover:bg-slate-100"
                     >
                       Hủy đơn
                     </button>

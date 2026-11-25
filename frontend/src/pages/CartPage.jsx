@@ -90,14 +90,14 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:space-y-7 sm:px-6 sm:py-8 lg:px-8">
-      <Link to="/" className="inline-flex min-h-10 items-center gap-2 text-sm text-slate-600 hover:text-[#193d57] hover:underline">
+      <Link to="/" className="shop-button shop-button-text inline-flex min-h-10 items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:underline">
         <ArrowLeft className="size-4" aria-hidden="true" />
         Tiếp tục mua sắm
       </Link>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-3xl font-bold text-[#162c3c] sm:text-4xl">Giỏ hàng của bạn</h1>
+        <h1 className="text-3xl font-bold text-[var(--text-primary)] sm:text-4xl">Giỏ hàng của bạn</h1>
         {!waitingForCart && !loadError && (
-          <p className="text-sm text-slate-600 tabular-nums">{itemCount} sản phẩm</p>
+          <p className="text-sm text-[var(--text-secondary)] tabular-nums">{itemCount} sản phẩm</p>
         )}
       </div>
 
@@ -110,31 +110,31 @@ export default function CartPage() {
       <p role="status" className="sr-only">{busy ? 'Đang cập nhật giỏ hàng…' : notice}</p>
 
       {waitingForCart ? (
-        <div role="status" className="rounded-lg border border-slate-200 bg-white px-6 py-14 text-center text-sm text-slate-600">
+        <div role="status" className="shop-panel rounded-lg border border-slate-200 bg-white px-6 py-14 text-center text-sm text-[var(--text-secondary)]">
           Đang tải giỏ hàng…
         </div>
       ) : loadError ? (
-        <div className="space-y-4 rounded-lg border border-slate-200 bg-white px-5 py-12 text-center">
-          <h2 className="text-lg font-semibold text-slate-900">Chưa tải được giỏ hàng</h2>
-          <p role="alert" className="text-sm text-slate-600">{loadError}</p>
+        <div className="shop-panel space-y-4 rounded-lg border border-slate-200 bg-white px-5 py-12 text-center">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">Chưa tải được giỏ hàng</h2>
+          <p role="alert" className="text-sm text-[var(--text-secondary)]">{loadError}</p>
           <button
             type="button"
             onClick={() => setReloadCount((count) => count + 1)}
-            className="min-h-11 cursor-pointer rounded-md bg-[#193d57] px-5 text-sm font-semibold text-white hover:bg-[#285372]"
+            className="shop-button shop-button-primary min-h-11 cursor-pointer rounded-md bg-[var(--accent-primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-hover)]"
           >
             Tải lại giỏ hàng
           </button>
         </div>
       ) : items.length === 0 ? (
-        <div className="space-y-4 rounded-lg border border-slate-200 bg-white px-5 py-14 text-center sm:py-20">
-          <ShoppingBag className="mx-auto size-9 text-slate-500" aria-hidden="true" />
+        <div className="shop-panel space-y-4 rounded-lg border border-slate-200 bg-white px-5 py-14 text-center sm:py-20">
+          <ShoppingBag className="mx-auto size-9 text-[var(--text-muted)]" aria-hidden="true" />
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-[#162c3c]">Giỏ hàng đang trống</h2>
-            <p className="text-sm text-slate-600">Chọn một món bạn cần từ danh mục của The Tech Shop.</p>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">Giỏ hàng đang trống</h2>
+            <p className="text-sm text-[var(--text-secondary)]">Chọn một món bạn cần từ danh mục của The Tech Shop.</p>
           </div>
           <Link
             to="/"
-            className="inline-flex min-h-11 items-center rounded-md bg-[#193d57] px-5 text-sm font-semibold text-white hover:bg-[#285372]"
+            className="shop-button shop-button-primary inline-flex min-h-11 items-center rounded-md bg-[var(--accent-primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-hover)]"
           >
             Xem sản phẩm
           </Link>
@@ -142,8 +142,8 @@ export default function CartPage() {
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-8" aria-busy={busy}>
           {/* Cart Items Table */}
-          <section aria-label="Sản phẩm trong giỏ" className="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <div className="hidden grid-cols-[minmax(0,1fr)_8.5rem_9rem] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold text-slate-600 md:grid">
+          <section aria-label="Sản phẩm trong giỏ" className="shop-panel min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
+            <div className="hidden grid-cols-[minmax(0,1fr)_8.5rem_9rem] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold text-[var(--text-secondary)] md:grid">
               <span>Sản phẩm</span>
               <span className="text-center">Số lượng</span>
               <span className="text-right">Thành tiền</span>
@@ -168,10 +168,10 @@ export default function CartPage() {
                         <ProductImage imageUrl={item.productImageUrl} alt="" className="size-full object-contain p-1" />
                       </Link>
                       <div className="min-w-0 space-y-1.5">
-                        <Link to={`/products/${item.productId}`} className="text-sm leading-snug font-bold text-slate-900 hover:underline sm:text-base">
+                        <Link to={`/products/${item.productId}`} className="text-sm leading-snug font-bold text-[var(--text-primary)] hover:underline sm:text-base">
                           {item.productName}
                         </Link>
-                        <p className="text-xs text-slate-600 tabular-nums sm:text-sm">
+                        <p className="text-xs text-[var(--text-secondary)] tabular-nums sm:text-sm">
                           Đơn giá {formatCurrencyVND(item.productPrice)}
                         </p>
                       </div>
@@ -184,7 +184,7 @@ export default function CartPage() {
                           disabled={busy || item.quantity <= 1}
                           onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                           aria-label={`Giảm số lượng ${item.productName}`}
-                          className="inline-flex size-11 items-center justify-center text-[#193d57] enabled:cursor-pointer enabled:hover:bg-slate-100 disabled:opacity-35"
+                          className="inline-flex size-11 items-center justify-center text-[var(--text-primary)] enabled:cursor-pointer enabled:hover:bg-slate-100 disabled:opacity-35"
                         >
                           <Minus className="size-4" aria-hidden="true" />
                         </button>
@@ -204,14 +204,14 @@ export default function CartPage() {
                           onKeyDown={(event) => {
                             if (event.key === 'Enter') event.currentTarget.blur();
                           }}
-                          className="h-11 w-10 min-w-0 text-center text-sm font-semibold text-slate-900 tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#193d57] disabled:opacity-35 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          className="h-11 w-10 min-w-0 text-center text-sm font-semibold text-[var(--text-primary)] tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--accent-focus)] disabled:opacity-35 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         />
                         <button
                           type="button"
                           disabled={busy}
                           onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                           aria-label={`Tăng số lượng ${item.productName}`}
-                          className="inline-flex size-11 items-center justify-center text-[#193d57] enabled:cursor-pointer enabled:hover:bg-slate-100 disabled:opacity-35"
+                          className="inline-flex size-11 items-center justify-center text-[var(--text-primary)] enabled:cursor-pointer enabled:hover:bg-slate-100 disabled:opacity-35"
                         >
                           <Plus className="size-4" aria-hidden="true" />
                         </button>
@@ -219,13 +219,13 @@ export default function CartPage() {
                     </div>
 
                     <div className="col-start-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 md:col-start-auto md:flex-col md:items-end">
-                      <p className="text-base font-bold text-[#193d57] tabular-nums">{formatCurrencyVND(subtotal)}</p>
+                      <p className="text-base font-bold text-[var(--text-primary)] tabular-nums">{formatCurrencyVND(subtotal)}</p>
                       <button
                         type="button"
                         disabled={busy}
                         onClick={() => handleRemoveItem(item)}
                         aria-label={`Xóa ${item.productName}`}
-                        className="inline-flex min-h-10 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-slate-600 enabled:cursor-pointer enabled:hover:bg-red-50 enabled:hover:text-red-800 disabled:opacity-40"
+                        className="shop-button shop-button-danger inline-flex min-h-10 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-[var(--text-secondary)] enabled:cursor-pointer enabled:hover:bg-red-50 enabled:hover:text-red-800 disabled:opacity-40"
                       >
                         <Trash2 className="size-3.5" aria-hidden="true" />
                         {isBusy ? 'Đang cập nhật…' : 'Xóa'}
@@ -238,36 +238,36 @@ export default function CartPage() {
           </section>
 
           {/* Summary Panel */}
-          <aside aria-labelledby="cart-summary" className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 sm:p-6 lg:sticky lg:top-24">
-            <h2 id="cart-summary" className="text-lg font-bold text-[#162c3c]">Tóm tắt giỏ hàng</h2>
+          <aside aria-labelledby="cart-summary" className="shop-panel space-y-5 rounded-lg border border-slate-200 bg-white p-5 sm:p-6 lg:sticky lg:top-24">
+            <h2 id="cart-summary" className="text-lg font-bold text-[var(--text-primary)]">Tóm tắt giỏ hàng</h2>
             <dl className="space-y-3 border-y border-slate-200 py-4 text-sm">
-              <div className="flex items-baseline justify-between gap-3 text-slate-600">
+              <div className="flex items-baseline justify-between gap-3 text-[var(--text-secondary)]">
                 <dt>Số lượng</dt>
-                <dd className="font-medium text-slate-900 tabular-nums">{itemCount} sản phẩm</dd>
+                <dd className="font-medium text-[var(--text-primary)] tabular-nums">{itemCount} sản phẩm</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-3 text-slate-600">
+              <div className="flex items-baseline justify-between gap-3 text-[var(--text-secondary)]">
                 <dt>Tiền hàng</dt>
-                <dd className="font-medium text-slate-900 tabular-nums">{formatCurrencyVND(cart?.totalPrice)}</dd>
+                <dd className="font-medium text-[var(--text-primary)] tabular-nums">{formatCurrencyVND(cart?.totalPrice)}</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-3 text-slate-600">
+              <div className="flex items-baseline justify-between gap-3 text-[var(--text-secondary)]">
                 <dt>Phí vận chuyển</dt>
-                <dd className="font-medium text-slate-900">Miễn phí</dd>
+                <dd className="font-medium text-[var(--text-primary)]">Miễn phí</dd>
               </div>
             </dl>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <span className="text-sm font-semibold text-slate-700">Tổng cộng</span>
-              <strong className="text-xl text-[#193d57] tabular-nums">{formatCurrencyVND(cart?.totalPrice)}</strong>
+              <span className="text-sm font-semibold text-[var(--text-secondary)]">Tổng cộng</span>
+              <strong className="text-xl text-[var(--text-primary)] tabular-nums">{formatCurrencyVND(cart?.totalPrice)}</strong>
             </div>
             <button
               type="button"
               disabled={busy}
               onClick={() => navigate('/checkout')}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white enabled:cursor-pointer enabled:hover:bg-[#285372] disabled:opacity-40"
+              className="shop-button shop-button-primary inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-[var(--accent-primary)] px-4 text-sm font-semibold text-white enabled:cursor-pointer enabled:hover:bg-[var(--accent-hover)] disabled:opacity-40"
             >
               Tiến hành đặt hàng
               <ArrowRight className="size-4" aria-hidden="true" />
             </button>
-            <p className="text-xs leading-relaxed text-slate-600">
+            <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
               Bạn sẽ nhập địa chỉ giao hàng và chọn cách thanh toán ở bước tiếp theo.
             </p>
           </aside>

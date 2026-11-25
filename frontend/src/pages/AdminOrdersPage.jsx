@@ -80,15 +80,15 @@ export default function AdminOrdersPage() {
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#162c3c]">
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
             Quản lý đơn hàng
           </h1>
-          <p className="mt-2 text-sm text-slate-600">{totalOrders} đơn hàng</p>
+          <p className="mt-2 text-sm text-[var(--text-secondary)]">{totalOrders} đơn hàng</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <label
             htmlFor="order-filter"
-            className="text-sm font-semibold text-slate-700"
+            className="text-sm font-semibold text-[var(--text-secondary)]"
           >
             Trạng thái
           </label>
@@ -100,7 +100,7 @@ export default function AdminOrdersPage() {
               setStatusFilter(event.target.value);
               setPage(0);
             }}
-            className="min-h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"
+            className="shop-field min-h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"
           >
             <option value="">Tất cả</option>
             {Object.entries(ORDER_STATUS).map(([value, status]) => (
@@ -113,7 +113,7 @@ export default function AdminOrdersPage() {
             type="button"
             disabled={loading || updatingId !== null}
             onClick={() => setReloadCount((count) => count + 1)}
-            className="min-h-11 rounded-md px-3 text-sm font-semibold text-[#193d57] underline enabled:cursor-pointer disabled:opacity-40"
+            className="shop-button shop-button-text min-h-11 rounded-md px-3 text-sm font-semibold text-[var(--text-primary)] underline enabled:cursor-pointer disabled:opacity-40"
           >
             Làm mới
           </button>
@@ -139,24 +139,24 @@ export default function AdminOrdersPage() {
         </p>
       )}
       {loading ? (
-        <p role="status" className="py-10 text-center text-sm text-slate-600">
+        <p role="status" className="py-10 text-center text-sm text-[var(--text-secondary)]">
           Đang tải đơn hàng…
         </p>
       ) : loadError ? (
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-6">
+        <div className="shop-panel space-y-3 rounded-lg border border-slate-200 bg-white p-6">
           <p role="alert" className="text-sm text-red-800">
             {loadError}
           </p>
           <button
             type="button"
             onClick={() => setReloadCount((count) => count + 1)}
-            className="min-h-11 cursor-pointer text-sm font-semibold underline"
+            className="shop-button shop-button-text min-h-11 cursor-pointer text-sm font-semibold underline"
           >
             Tải lại đơn hàng
           </button>
         </div>
       ) : orders.length === 0 ? (
-        <p className="rounded-lg border border-slate-200 bg-white px-5 py-12 text-center text-sm text-slate-600">
+        <p className="rounded-lg border border-slate-200 bg-white px-5 py-12 text-center text-sm text-[var(--text-secondary)]">
           Chưa có đơn hàng trong mục này.
         </p>
       ) : (
@@ -165,19 +165,19 @@ export default function AdminOrdersPage() {
             <article
               key={order.id}
               aria-label={`Đơn ${order.id.substring(0, 8).toUpperCase()}`}
-              className="grid gap-5 rounded-lg border border-slate-200 bg-white p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_15rem]"
+              className="shop-panel grid gap-5 rounded-lg border border-slate-200 bg-white p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_15rem]"
             >
               <div className="min-w-0 space-y-2">
-                <h2 className="font-bold text-[#162c3c]">
+                <h2 className="font-bold text-[var(--text-primary)]">
                   Đơn #{order.id.substring(0, 8).toUpperCase()}
                 </h2>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {formatDateTime(order.createdAt)}
                 </p>
                 <p className="text-sm font-semibold">
                   {order.receiverName} · {order.phoneNumber}
                 </p>
-                <p className="break-words text-sm text-slate-600">
+                <p className="break-words text-sm text-[var(--text-secondary)]">
                   {order.shippingAddress}
                 </p>
               </div>
@@ -189,10 +189,10 @@ export default function AdminOrdersPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {paymentLabel(order.paymentMethod)}
                 </p>
-                <strong className="block text-lg text-[#193d57] tabular-nums">
+                <strong className="block text-lg text-[var(--text-primary)] tabular-nums">
                   {formatCurrencyVND(order.totalAmount)}
                 </strong>
               </div>
@@ -215,7 +215,7 @@ export default function AdminOrdersPage() {
                   onChange={(event) =>
                     handleStatusChange(order.id, event.target.value)
                   }
-                  className="min-h-11 w-full rounded-md border border-slate-300 bg-white px-2 text-sm disabled:opacity-50"
+                  className="shop-field min-h-11 w-full rounded-md border border-slate-300 bg-white px-2 text-sm disabled:opacity-50"
                 >
                   <option value={order.status}>
                     {updatingId === order.id
@@ -245,7 +245,7 @@ export default function AdminOrdersPage() {
               >
                 <ChevronLeft className="size-4" aria-hidden="true" />
               </button>
-              <span className="text-sm text-slate-600">
+              <span className="text-sm text-[var(--text-secondary)]">
                 Trang {page + 1} / {totalPages}
               </span>
               <button

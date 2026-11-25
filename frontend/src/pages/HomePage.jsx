@@ -24,7 +24,6 @@ const FLAGSHIP_SLIDES = [
     name: 'iPhone 15 Pro Max',
     headline: 'iPhone 15 Pro Max',
     subhead: 'Titan tự nhiên. Nhẹ tênh. Mạnh vượt trội.',
-    price: 30000000,
     imageUrl: '/catalog/photos/iphone-15-pro-max.webp',
     alt: 'iPhone 15 Pro Max khung viền Titan',
     categorySlug: 'dien-thoai',
@@ -37,7 +36,6 @@ const FLAGSHIP_SLIDES = [
     name: 'Asus ROG Strix',
     headline: 'ROG Strix G15',
     subhead: 'Tản nhiệt chuẩn mực. Làm chủ mọi tác vụ nặng.',
-    price: 35000000,
     imageUrl: '/catalog/photos/asus-rog-strix-g15.webp',
     alt: 'Laptop gaming Asus ROG Strix G15',
     categorySlug: 'laptop',
@@ -50,7 +48,6 @@ const FLAGSHIP_SLIDES = [
     name: 'AirPods Pro 2',
     headline: 'AirPods Pro 2',
     subhead: 'Chống ồn chủ động. Tĩnh lặng chỉ sau một chạm.',
-    price: 4490000,
     imageUrl: '/catalog/photos/airpods-pro-2.webp',
     alt: 'Tai nghe không dây Apple AirPods Pro 2 kèm hộp sạc',
     categorySlug: 'tai-nghe',
@@ -66,7 +63,6 @@ const BENTO_TILES = [
     eyebrow: 'Gọn nhẹ di động',
     name: 'MacBook Air M2',
     subhead: 'Mỏng thanh thoát. Pin bền bỉ suốt ngày dài.',
-    price: 17990000,
     imageUrl: '/catalog/photos/macbook-air-m2.webp',
     alt: 'Laptop Apple MacBook Air M2',
     categorySlug: 'laptop',
@@ -77,7 +73,6 @@ const BENTO_TILES = [
     eyebrow: 'Chuẩn mực bàn làm việc',
     name: 'Logitech MX Master 3S',
     subhead: 'Cuộn từ trường êm tuyệt đối. Chuẩn từng điểm ảnh.',
-    price: 2190000,
     imageUrl: '/catalog/photos/logitech-mx-master-3s.webp',
     alt: 'Chuột không dây công thái học Logitech MX Master 3S',
     categorySlug: 'ban-phim-chuot',
@@ -321,6 +316,30 @@ export default function HomePage() {
         </div>
       )}
 
+      <div className="border-b border-black/[0.06] bg-white">
+        <form
+          role="search"
+          aria-label="Tìm nhanh sản phẩm"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setKeyword(searchTerm.trim());
+            setPage(0);
+            scrollToCatalog();
+          }}
+          className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8"
+        >
+          <label htmlFor="quick-search" className="sr-only">Tìm nhanh sản phẩm</label>
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#6E6E73]" aria-hidden="true" />
+            <input id="quick-search" type="search" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Bạn đang tìm thiết bị nào?" className="min-h-11 w-full rounded-full bg-[#F5F5F7] pr-4 pl-11 text-base text-[#1D1D1F] placeholder:text-[#6E6E73] sm:text-sm" />
+          </div>
+          <button type="submit" className="shop-button shop-button-primary shrink-0 px-4 sm:px-6">
+            <Search className="size-4 sm:hidden" aria-hidden="true" />
+            <span className="sr-only sm:not-sr-only">Tìm sản phẩm</span>
+          </button>
+        </form>
+      </div>
+
       {/* 1. Full-Bleed OLED Flagship Welcome Stage */}
       <section
         aria-roledescription="carousel"
@@ -352,9 +371,6 @@ export default function HomePage() {
             </h1>
             <p className="animate-hero-copy-delay mt-2.5 max-w-md text-sm font-medium text-[#F5F5F7]/90 sm:mt-3 sm:max-w-xl sm:text-xl">
               {activeSlide.subhead}
-            </p>
-            <p className="animate-hero-copy-delay mt-2 text-xs font-medium text-[#A1A1A6] tabular-nums sm:text-sm">
-              Giá niêm yết {formatCurrencyVND(activeSlide.price)}
             </p>
 
             {/* Centered Dual Pill Actions */}
@@ -391,9 +407,9 @@ export default function HomePage() {
           {/* Timed DotNav + Play/Pause Controls */}
           <div className="mt-5 flex items-center gap-2.5 sm:mt-6">
             <div
-              role="tablist"
+              role="group"
               aria-label="Chọn sản phẩm tâm điểm"
-              className="inline-flex items-center gap-2 rounded-full bg-white/[0.11] px-3.5 py-2 ring-1 ring-white/15 backdrop-blur-md"
+              className="inline-flex items-center rounded-full bg-white/[0.11] px-1 ring-1 ring-white/15 backdrop-blur-md"
             >
               {FLAGSHIP_SLIDES.map((slide, index) => {
                 const selected = index === slideIndex;
@@ -401,14 +417,12 @@ export default function HomePage() {
                   <button
                     key={slide.name}
                     type="button"
-                    role="tab"
-                    aria-selected={selected}
+                    aria-pressed={selected}
                     aria-label={`Hiển thị ${slide.name}`}
                     onClick={() => setSlideIndex(index)}
-                    className={`relative h-2 cursor-pointer overflow-hidden rounded-full transition-all duration-300 ${
-                      selected ? 'w-8 bg-white/30' : 'w-2 bg-white/45 hover:bg-white/75'
-                    }`}
+                    className="group inline-flex size-11 cursor-pointer items-center justify-center rounded-full"
                   >
+                    <span className={`relative h-2 overflow-hidden rounded-full ${selected ? 'w-8 bg-white/30' : 'w-2 bg-white/45 group-hover:bg-white/75'}`}>
                     {selected && autoAdvancing && (
                       <span
                         key={`progress-${slideIndex}-${autoAdvancing}`}
@@ -418,6 +432,7 @@ export default function HomePage() {
                     {selected && !autoAdvancing && (
                       <span className="absolute inset-0 rounded-full bg-white" />
                     )}
+                    </span>
                   </button>
                 );
               })}
@@ -428,7 +443,7 @@ export default function HomePage() {
               onClick={() => setUserPaused((paused) => !paused)}
               aria-label={userPaused ? 'Phát chuyển cảnh tự động' : 'Tạm dừng chuyển cảnh tự động'}
               aria-pressed={userPaused}
-              className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/[0.11] text-white/90 ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-white/20 active:scale-[0.95] motion-safe-transform"
+              className="inline-flex size-11 cursor-pointer items-center justify-center rounded-full bg-white/[0.11] text-white/90 ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-white/20 active:scale-[0.95] motion-safe-transform"
             >
               {userPaused || reducedMotion ? (
                 <Play className="size-3.5 fill-current" aria-hidden="true" />
@@ -483,13 +498,6 @@ export default function HomePage() {
                   >
                     {tile.subhead}
                   </p>
-                  <p
-                    className={`mt-1.5 text-xs font-medium tabular-nums sm:text-sm ${
-                      isDark ? 'text-[#A1A1A6]' : 'text-[#6E6E73]'
-                    }`}
-                  >
-                    {formatCurrencyVND(tile.price)}
-                  </p>
 
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
                     <button
@@ -517,9 +525,10 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div
+                <button
+                  type="button"
                   onClick={() => openProductByName(tile.name)}
-                  role="presentation"
+                  aria-label={`Xem ${tile.name}`}
                   className="relative z-10 mt-5 flex h-48 w-full max-w-lg cursor-pointer items-center justify-center sm:mt-6 sm:h-60"
                 >
                   <ProductImage
@@ -532,7 +541,7 @@ export default function HomePage() {
                         : 'scale-[1.08] mix-blend-multiply contrast-[1.03] brightness-[1.02]'
                     }`}
                   />
-                </div>
+                </button>
               </div>
             );
           })}
@@ -566,8 +575,8 @@ export default function HomePage() {
           role="group"
           className="mt-5 min-w-0 overflow-hidden rounded-2xl bg-white p-3 shadow-[0_2px_14px_rgba(0,0,0,0.03)] sm:mt-6 sm:rounded-3xl sm:p-4"
         >
-          {/* Row 1: Pill Search + Sort side-by-side even on mobile */}
-          <div className="grid grid-cols-[1fr_auto] items-center gap-2 sm:gap-3">
+          {/* Row 1: Pill Search + Sort */}
+          <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto] sm:gap-3">
             <div className="relative min-w-0">
               <Search
                 className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#6E6E73]"
@@ -604,7 +613,7 @@ export default function HomePage() {
                 setPage(0);
               }}
               aria-label="Sắp xếp theo giá"
-              className="min-h-10 max-w-[9.5rem] cursor-pointer rounded-full bg-[#F5F5F7] px-3 text-xs font-semibold text-[#1D1D1F] transition-colors hover:bg-[#EBEBF0] sm:min-h-11 sm:max-w-none sm:px-4 sm:text-sm"
+              className="min-h-11 cursor-pointer rounded-full bg-[#F5F5F7] px-4 text-sm font-semibold text-[#1D1D1F] transition-colors hover:bg-[#EBEBF0]"
             >
               <option value="asc">Giá thấp đến cao</option>
               <option value="desc">Giá cao đến thấp</option>
@@ -731,7 +740,6 @@ export default function HomePage() {
                     {/* 1. Ảnh → 2. Tên */}
                     <Link
                       to={`/products/${product.id}`}
-                      aria-label={product.name}
                       className="group block focus-visible:-outline-offset-2"
                     >
                       <div className="relative aspect-4/3 overflow-hidden bg-white px-3 pt-4 pb-2 sm:px-5 sm:pt-6 sm:pb-3">
@@ -782,10 +790,10 @@ export default function HomePage() {
                         onClick={() => handleAddToCart(product)}
                         aria-label={
                           outOfStock
-                            ? `${product.name} tạm hết hàng`
+                            ? `Tạm hết hàng: ${product.name}`
                             : adding
-                              ? `Đang thêm ${product.name}`
-                              : `Thêm ${product.name} vào giỏ hàng`
+                              ? `Đang thêm… ${product.name}`
+                              : `Thêm vào giỏ: ${product.name}`
                         }
                         className={`inline-flex min-h-9.5 w-full items-center justify-center gap-1.5 rounded-full px-3 text-xs font-semibold whitespace-nowrap transition-all duration-200 sm:min-h-10 sm:text-[13px] ${
                           outOfStock

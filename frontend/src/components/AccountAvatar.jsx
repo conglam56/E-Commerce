@@ -10,7 +10,7 @@ export default function AccountAvatar({ user, large = false }) {
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[#e1ecf3] font-bold text-[#193d57] ${large ? 'size-16 text-2xl' : 'size-8 text-xs'}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[#E8E8ED] font-semibold text-[#1D1D1F] ${large ? 'size-16 text-2xl' : 'size-8 text-xs'}`}
     >
       {initials.toLocaleUpperCase('vi')}
     </span>

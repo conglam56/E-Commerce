@@ -837,20 +837,17 @@ function buildCategoryFallback(product) {
     officialProductPhotos.get(product?.imageUrl) || resolveProductImage(product?.imageUrl);
 
   return {
-    tagline: product?.description || `${categoryName} chính hãng phân phối tại The Tech Shop.`,
-    quickSpecs: [categoryName, 'Chính hãng 100%', 'Bảo hành tiêu chuẩn'],
+    tagline: product?.description || `Xem thông tin ${categoryName.toLocaleLowerCase('vi')} tại The Tech Shop.`,
+    quickSpecs: [categoryName],
     gallery: [{ url: primaryUrl, caption: product?.name || categoryName }],
     highlights: [
-      'Sản phẩm mới nguyên hộp, đầy đủ phụ kiện tiêu chuẩn theo công bố của nhà sản xuất.',
-      'Tồn kho và giá bán hiển thị minh bạch theo thời gian thực trên hệ thống cửa hàng.',
-      'Kiểm tra ngoại quan và xác nhận thông tin giao nhận rõ ràng trước khi hoàn tất đặt hàng.',
+      'Xem giá bán và số lượng còn hàng ở phần đặt mua sản phẩm.',
+      'Rà soát số lượng và địa chỉ nhận hàng trước khi xác nhận đặt hàng.',
     ],
     overview: product?.description ? [product.description] : [],
     specs: [
       { label: 'Tên sản phẩm', value: product?.name || '—' },
       { label: 'Danh mục', value: categoryName },
-      { label: 'Tình trạng', value: 'Mới 100%, nguyên niêm phong' },
-      { label: 'Chính sách bảo hành', value: '12 tháng theo tiêu chuẩn nhà sản xuất' },
     ],
   };
 }

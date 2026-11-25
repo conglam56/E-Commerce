@@ -73,8 +73,8 @@ export default function ChangePasswordForm() {
   };
 
   return (
-    <section aria-labelledby="change-password-heading" className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
-      <h2 id="change-password-heading" className="text-lg font-bold text-slate-900">Đổi mật khẩu</h2>
+    <section aria-labelledby="change-password-heading" className="shop-panel rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+      <h2 id="change-password-heading" className="text-lg font-bold text-[var(--text-primary)]">Đổi mật khẩu</h2>
       <form noValidate onSubmit={handleSubmit} className="mt-4 space-y-4" aria-busy={submitting}>
         {error && <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
         {success && <p role="status" className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800">Đã đổi mật khẩu.</p>}
@@ -84,7 +84,7 @@ export default function ChangePasswordForm() {
           const description = name === 'newPassword' ? `${id}-hint` : undefined;
           return (
             <div key={name}>
-              <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-slate-700">{label}</label>
+              <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">{label}</label>
               <input
                 id={id}
                 name={name}
@@ -97,15 +97,15 @@ export default function ChangePasswordForm() {
                 onBlur={() => markTouched(name)}
                 aria-invalid={Boolean(fieldError)}
                 aria-describedby={fieldError ? `${id}-error` : description}
-                className="min-h-11 w-full rounded-lg border border-slate-300 px-3 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-[#193d57] disabled:bg-slate-50 aria-invalid:border-red-600"
+                className="shop-field min-h-11 w-full rounded-lg border border-slate-300 px-3 text-sm text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--accent-focus)] disabled:bg-slate-50 aria-invalid:border-red-600"
               />
               {fieldError ? (
                 <p id={`${id}-error`} role="alert" className="mt-1 text-sm text-red-700">{fieldError}</p>
-              ) : description && <p id={description} className="mt-1 text-xs text-slate-600">Tối thiểu 6 ký tự.</p>}
+              ) : description && <p id={description} className="mt-1 text-xs text-[var(--text-secondary)]">Tối thiểu 6 ký tự.</p>}
             </div>
           );
         })}
-        <button type="submit" disabled={submitting} className="inline-flex min-h-11 items-center rounded-md bg-[#193d57] px-4 text-sm font-semibold text-white hover:bg-[#285372] disabled:opacity-60">
+        <button type="submit" disabled={submitting} className="shop-button shop-button-primary inline-flex min-h-11 items-center rounded-md bg-[var(--accent-primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60">
           {submitting ? 'Đang lưu…' : 'Lưu mật khẩu mới'}
         </button>
       </form>

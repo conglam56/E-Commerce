@@ -61,12 +61,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8 shadow-xs">
+    <div className="flex items-start justify-center px-4 py-10 sm:py-16">
+      <div className="shop-panel w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8 shadow-xs">
         <div className="mb-6 space-y-1.5">
           <BrandWordmark />
-          <h1 className="text-xl font-display font-bold text-slate-900">Đăng ký tài khoản</h1>
-          <p className="text-sm text-slate-600">Tạo tài khoản để đặt hàng và xem lại đơn đã mua.</p>
+          <h1 className="text-xl font-display font-bold text-[var(--text-primary)]">Đăng ký tài khoản</h1>
+          <p className="text-sm text-[var(--text-secondary)]">Tạo tài khoản để đặt hàng và xem lại đơn đã mua.</p>
         </div>
 
         {error && (
@@ -83,7 +83,7 @@ export default function RegisterPage() {
           <div>
             <label
               htmlFor="reg-fullname"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
+              className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5"
             >
               Họ và tên
             </label>
@@ -98,7 +98,7 @@ export default function RegisterPage() {
               aria-invalid={Boolean(touched.fullName && validationErrors.fullName)}
               aria-describedby={touched.fullName && validationErrors.fullName ? 'reg-fullname-error' : undefined}
               placeholder="Nguyễn Văn A"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              className="shop-field w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-[var(--text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-focus)] focus:border-transparent"
             />
             {touched.fullName && validationErrors.fullName && (
               <p id="reg-fullname-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.fullName}</p>
@@ -108,7 +108,7 @@ export default function RegisterPage() {
           <div>
             <label
               htmlFor="reg-email"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
+              className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5"
             >
               Địa chỉ Email
             </label>
@@ -124,7 +124,7 @@ export default function RegisterPage() {
               aria-invalid={Boolean(touched.email && validationErrors.email)}
               aria-describedby={touched.email && validationErrors.email ? 'reg-email-error' : undefined}
               placeholder="name@example.com"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              className="shop-field w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-[var(--text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-focus)] focus:border-transparent"
             />
             {touched.email && validationErrors.email && (
               <p id="reg-email-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.email}</p>
@@ -134,7 +134,7 @@ export default function RegisterPage() {
           <div>
             <label
               htmlFor="reg-password"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
+              className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5"
             >
               Mật khẩu
             </label>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
               aria-invalid={Boolean(touched.password && validationErrors.password)}
               aria-describedby={touched.password && validationErrors.password ? 'reg-password-error' : undefined}
               placeholder="Tối thiểu 6 ký tự"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              className="shop-field w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-[var(--text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-focus)] focus:border-transparent"
             />
             {touched.password && validationErrors.password && (
               <p id="reg-password-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.password}</p>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
           <div>
             <label
               htmlFor="reg-confirm"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
+              className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5"
             >
               Xác nhận mật khẩu
             </label>
@@ -177,7 +177,7 @@ export default function RegisterPage() {
               aria-invalid={Boolean(touched.confirmPassword && validationErrors.confirmPassword)}
               aria-describedby={touched.confirmPassword && validationErrors.confirmPassword ? 'reg-confirm-error' : undefined}
               placeholder="Nhập lại mật khẩu"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              className="shop-field w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-[var(--text-primary)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-focus)] focus:border-transparent"
             />
             {touched.confirmPassword && validationErrors.confirmPassword && (
               <p id="reg-confirm-error" role="alert" className="mt-1.5 text-sm text-red-700">{validationErrors.confirmPassword}</p>
@@ -187,18 +187,18 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-2 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors cursor-pointer"
+            className="shop-button shop-button-primary w-full mt-2 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] disabled:opacity-60 text-white text-sm font-semibold transition-colors cursor-pointer"
           >
             <UserPlus className="w-4 h-4" aria-hidden="true" />
             {submitting ? 'Đang khởi tạo...' : 'Đăng ký ngay'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
+        <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
           Đã có tài khoản?{' '}
           <Link
             to="/login"
-            className="font-semibold text-blue-600 hover:text-blue-700"
+            className="font-semibold text-[var(--accent-primary)] hover:text-[var(--accent-hover)]"
           >
             Đăng nhập
           </Link>
