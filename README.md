@@ -1,12 +1,14 @@
 # The Tech Shop
 
-Ứng dụng bán thiết bị công nghệ với React và Spring Boot. Khách có thể tìm sản phẩm, quản lý giỏ, đặt hàng và hủy đơn đang chờ xác nhận. Quản trị viên quản lý sản phẩm và xử lý đơn theo từng trạng thái.
-
-Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. Giá, tồn kho và thanh toán chuyển khoản dùng dữ liệu minh họa.
+Ứng dụng thương mại điện tử bán thiết bị công nghệ, xây dựng bằng React, Spring Boot và PostgreSQL. Dự án triển khai luồng mua hàng từ tìm kiếm sản phẩm đến đặt đơn, cùng trang quản trị sản phẩm và đơn hàng.
 
 [![Build and test](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/conglam56/E-Commerce/actions/workflows/ci.yml)
 
-**[Mở bản demo trên Render](https://the-tech-shop-storefront.onrender.com/)**
+[Dùng thử](https://the-tech-shop-storefront.onrender.com/) · [Tài liệu API](https://the-tech-shop-storefront.onrender.com/swagger-ui/index.html) · [GitHub Actions](https://github.com/conglam56/E-Commerce/actions)
+
+Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. COD là luồng đặt hàng chính, chuyển khoản được mô phỏng. Bạn có thể đăng ký tài khoản để dùng thử giỏ hàng, đặt đơn và xem hồ sơ.
+
+Render Free có thể mất thời gian khởi động khi mở lại sau một khoảng không có truy cập. [Thông tin gói miễn phí](https://render.com/docs/free)
 
 ![Trang chủ The Tech Shop](docs/screenshots/storefront.png)
 
@@ -19,12 +21,13 @@ Bản demo có 23 sản phẩm mẫu thuộc 6 danh mục. Giá, tồn kho và t
 | Frontend | React 18, React Router, Vite 6, Tailwind CSS 4, Axios |
 | Kiểm tra | JUnit 5, Mockito, kiểm thử API và trình duyệt trên dữ liệu QA |
 | CI | GitHub Actions với hai job kiểm tra backend và build frontend |
+| Triển khai | Render, Docker multi-stage, PostgreSQL riêng cho demo |
 
 ## Tính năng
 
 - Phân quyền CUSTOMER/ADMIN ở API và điều hướng tương ứng ở giao diện.
-- Đăng ký với thông báo lỗi ngay khi nhập. Sau khi đăng nhập, chọn avatar để xem họ tên, email và vai trò.
-- Đổi mật khẩu từ trang hồ sơ. Giao diện báo lỗi ngay khi nhập và server xác minh mật khẩu hiện tại trước khi lưu.
+- Đăng ký với thông báo lỗi ngay khi nhập và mật khẩu tối thiểu 6 ký tự. Sau khi đăng nhập, chọn avatar để xem họ tên, email và vai trò.
+- Đổi mật khẩu từ trang hồ sơ. Giao diện kiểm tra ngay khi nhập, gồm độ dài tối thiểu 6 ký tự và xác nhận mật khẩu. Server xác minh mật khẩu hiện tại rồi lưu mật khẩu mới bằng BCrypt.
 - Tìm kiếm, lọc danh mục, sắp xếp và phân trang phía máy chủ.
 - Nhập số lượng trực tiếp hoặc dùng nút tăng/giảm. Backend kiểm tra tồn kho và tính tiền.
 - Đặt hàng trong transaction, lưu giá tại thời điểm đặt, trừ kho và làm trống giỏ khi thành công.
@@ -49,6 +52,11 @@ flowchart LR
 
 Cần JDK 17 trở lên, Maven 3.9 trở lên, Node.js 22 trở lên và PostgreSQL. Docker Compose có thể dùng để chạy riêng PostgreSQL.
 
+~~~sh
+git clone https://github.com/conglam56/E-Commerce.git
+cd E-Commerce
+~~~
+
 ### 1. Chuẩn bị cấu hình
 
 Từ thư mục gốc của repo, sao chép tệp mẫu.
@@ -68,6 +76,14 @@ $jwtRng.Dispose()
 ~~~
 
 Spring Boot tự đọc `.env` khi chạy từ thư mục gốc. Biến môi trường của tiến trình có thể ghi đè các giá trị trong tệp. `.env` được Git bỏ qua.
+
+| Biến | Ý nghĩa |
+| --- | --- |
+| `DB_URL` | JDBC URL của PostgreSQL; mặc định cục bộ là `jdbc:postgresql://localhost:5434/e-commerce` |
+| `DB_USERNAME` | Tên người dùng database |
+| `DB_PASSWORD` | Mật khẩu database |
+| `JWT_SECRET` | Khóa ngẫu nhiên mã hóa Base64, ít nhất 32 byte trước khi mã hóa |
+| `JWT_EXPIRATION` | Thời hạn JWT theo mili giây; tệp mẫu dùng `3600000`, tương đương 1 giờ |
 
 ### 2. Chạy cơ sở dữ liệu
 
@@ -98,9 +114,30 @@ npm run dev
 
 Mở `http://localhost:5173`. Frontend mặc định gọi `/api` qua proxy Vite. Khi cần một API ở host khác, đặt `VITE_API_BASE_URL` trong môi trường build frontend.
 
-## Demo vai trò quản trị
+### Chạy toàn bộ bằng Docker
 
-Đăng ký một tài khoản mới qua giao diện. Trong database demo, cấp quyền cho đúng email đã đăng ký.
+Sau khi chuẩn bị `.env`, có thể dùng Docker Desktop để chạy cả frontend, backend và PostgreSQL.
+
+~~~sh
+docker compose up -d --build
+docker compose ps
+~~~
+
+| Dịch vụ | Địa chỉ cục bộ |
+| --- | --- |
+| Frontend qua Docker | [localhost:3000](http://localhost:3000) |
+| Frontend qua Vite | [localhost:5173](http://localhost:5173) |
+| Backend API | [localhost:8080/api](http://localhost:8080/api) |
+| Swagger UI | [localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) |
+| PostgreSQL qua Docker | `localhost:5434` |
+
+Chọn cách chạy bằng Docker hoặc bằng Maven và Vite để tránh trùng cổng backend.
+
+## Tài khoản và quyền quản trị
+
+Tài khoản tự đăng ký có quyền **CUSTOMER**. Bản demo online đã được cấu hình tài khoản quản trị riêng; thông tin truy cập được cung cấp trực tiếp cho người dùng thử quản trị.
+
+Để tạo quản trị viên trên máy, đăng ký một tài khoản qua giao diện, sau đó cấp quyền cho đúng email trong database cục bộ.
 
 ~~~sh
 docker compose exec postgres psql -U postgres -d e-commerce
@@ -110,16 +147,19 @@ docker compose exec postgres psql -U postgres -d e-commerce
 UPDATE users SET role = 'ADMIN' WHERE email = 'your-demo-admin@example.com';
 ~~~
 
-Dùng username database bạn cấu hình nếu khác `postgres`. Đăng xuất rồi đăng nhập lại để giao diện nhận quyền mới. Tài khoản đăng ký thông thường có quyền CUSTOMER.
+Dùng username database bạn cấu hình nếu khác `postgres`. Đăng xuất rồi đăng nhập lại để giao diện nhận quyền mới.
+
+Trên Render, biến môi trường `DEMO_ADMIN_EMAIL` chỉ định tài khoản đã đăng ký cần cấp quyền ADMIN lúc ứng dụng khởi động. Tài khoản phải đang hoạt động; mật khẩu được giữ nguyên.
 
 ## Dùng thử
 
 1. Tìm sản phẩm, đổi danh mục và sắp xếp giá.
-2. Đăng ký tài khoản khách, mở hồ sơ từ avatar, thêm sản phẩm và đổi số lượng trong giỏ.
-3. Nhập thông tin giao hàng, chọn COD và đặt đơn.
-4. Mở lịch sử đơn, đối chiếu tổng tiền, hủy một đơn đang chờ xác nhận và kiểm tra tồn kho.
-5. Đăng nhập quản trị, lọc đơn và chuyển qua các trạng thái hợp lệ.
-6. Thử truy cập API quản trị bằng tài khoản khách để thấy HTTP 403.
+2. Đăng ký tài khoản khách, mở hồ sơ từ avatar và thử đổi mật khẩu với dữ liệu không hợp lệ.
+3. Thêm sản phẩm và nhập trực tiếp số lượng trong giỏ.
+4. Nhập thông tin giao hàng minh họa, chọn COD và đặt đơn.
+5. Mở lịch sử đơn, đối chiếu tổng tiền và hủy một đơn đang chờ xác nhận.
+6. Đăng nhập quản trị, lọc đơn và chuyển qua các trạng thái hợp lệ.
+7. Thử truy cập API quản trị bằng tài khoản khách để thấy HTTP 403.
 
 ~~~text
 PENDING -> CONFIRMED -> SHIPPED -> DELIVERED
@@ -149,7 +189,7 @@ Bộ test dùng Mockito nên không cần database cho `mvn test`. Surefire nạ
 
 Workflow ở [.github/workflows/ci.yml](.github/workflows/ci.yml) chạy `mvn verify` và `npm ci && npm run build` cho push và pull request.
 
-Các bài test backend bao phủ xác thực, điều kiện đăng ký, giỏ hàng, quy trình đặt và hủy đơn, cùng xung đột tồn kho. Bạn có thể xem kết quả build hiện tại trong GitHub Actions.
+Các bài test backend bao phủ xác thực, điều kiện đăng ký, cấu hình tài khoản admin demo, giỏ hàng, quy trình đặt và hủy đơn, cùng xung đột tồn kho. Kiểm tra giao diện hồ sơ và luồng đổi mật khẩu đã được thực hiện bằng trình duyệt với database kiểm thử riêng.
 
 ## Ảnh demo
 
@@ -162,6 +202,10 @@ Các bài test backend bao phủ xác thực, điều kiện đăng ký, giỏ h
 ## Triển khai trên Render
 
 [Blueprint](render.yaml) dựng một Web Service từ [Dockerfile.render](Dockerfile.render) và một PostgreSQL riêng. Web Service phục vụ React và API Spring Boot cùng tên miền. Flyway khởi tạo danh mục mẫu khi kết nối database mới.
+
+Web Service và Blueprint hiện theo dõi nhánh **`main`**. Auto-Deploy được đặt thành **On Commit**. Khi code được push hoặc merge vào `main`, Render build image, chạy `mvn verify`, khởi động ứng dụng và kiểm tra sức khỏe trước khi cập nhật bản demo. Địa chỉ truy cập được giữ nguyên.
+
+Để triển khai trên tài khoản Render khác, tạo Blueprint từ repository này, chọn nhánh `main` và đường dẫn `render.yaml`. Blueprint tạo khóa JWT và lấy thông tin kết nối từ PostgreSQL. Khi muốn cấp quyền cho tài khoản demo, đăng ký tài khoản đó trước rồi thêm `DEMO_ADMIN_EMAIL` trong Environment của Web Service và deploy lại.
 
 Gói miễn phí thích hợp cho bản demo. Web Service có thể cần thời gian khởi động sau khi không có lượt truy cập, và PostgreSQL hết hạn sau 30 ngày. [Giới hạn gói miễn phí của Render](https://render.com/docs/free)
 
