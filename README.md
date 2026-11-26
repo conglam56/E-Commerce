@@ -202,12 +202,19 @@ UPDATE users SET role = 'ADMIN' WHERE email = 'your-demo-admin@example.com';
 | --- | --- | --- |
 | Chạy test backend | `mvn test` | Gốc repository |
 | Kiểm tra và đóng gói backend | `mvn verify` | Gốc repository |
+| Chạy unit test, test tích hợp PostgreSQL và đóng gói | `mvn -Pintegration verify` | Gốc repository |
 | Cài dependency frontend | `npm ci` | `frontend` |
 | Build frontend | `npm run build` | `frontend` |
 
 Test backend dùng JUnit và Mockito, không cần database cho `mvn test`. Các test kiểm tra xác thực, điều kiện đăng ký, cấp quyền admin demo, giỏ hàng, quy trình đặt/hủy đơn và xung đột tồn kho.
 
-[GitHub Actions](.github/workflows/ci.yml) chạy `mvn verify` và build frontend cho mỗi push hoặc pull request.
+Test tích hợp trong `OrderPostgresIT` dùng PostgreSQL 16 thật qua Testcontainers và chạy toàn bộ migration Flyway. Cần Docker Engine đang chạy (Docker Desktop ở chế độ Linux containers trên Windows); lần chạy đầu cần tải image và dependency. Testcontainers tự tạo database riêng, cấp cổng ngẫu nhiên và dọn container sau khi chạy, không sử dụng database hay thông tin đăng nhập trong `.env`.
+
+Các test tích hợp kiểm tra đặt đơn và lưu giá mua, rollback khi thiếu hàng hoặc lỗi ràng buộc database, hai khách cùng mua sản phẩm cuối chỉ có một đơn thành công, giỏ hàng của khách thất bại được giữ lại và hủy đơn chỉ hoàn kho một lần. Các ca kiểm tra trạng thái đã commit bằng truy vấn PostgreSQL ngoài transaction của service. Riêng ca đồng thời cho hai transaction cùng đọc tồn kho bằng 1 trước khi checkout để kiểm tra xung đột optimistic locking thực tế.
+
+`mvn test` và `mvn verify` không yêu cầu Docker; dùng `mvn -Pintegration verify` để chạy thêm test tích hợp. Khi đã bật profile `integration`, thiếu Docker hoặc test tích hợp thất bại sẽ làm build thất bại, không tự bỏ qua test.
+
+[GitHub Actions](.github/workflows/ci.yml) chạy `mvn -Pintegration verify` và build frontend cho mỗi push hoặc pull request.
 
 Sau `mvn verify`, chạy backend đã đóng gói với cấu hình database trong `.env`:
 

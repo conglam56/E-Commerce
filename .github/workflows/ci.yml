@@ -17,8 +17,8 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
-      - name: Run tests and package application
-        run: mvn --batch-mode --no-transfer-progress verify
+      - name: Run unit and PostgreSQL integration tests and package application
+        run: mvn --batch-mode --no-transfer-progress -Pintegration verify
 
   frontend:
     runs-on: ubuntu-latest
