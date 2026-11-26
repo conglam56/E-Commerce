@@ -137,7 +137,7 @@ Mở **[localhost:3000](http://localhost:3000)**. Flyway tự khởi tạo schem
 Chạy PostgreSQL bằng Docker, sau đó khởi động backend từ thư mục gốc:
 
 ```sh
-docker compose up -d postgres
+docker compose up -d postgres mailbox
 mvn spring-boot:run
 ```
 
@@ -170,6 +170,16 @@ Spring Boot đọc `.env` khi được chạy từ thư mục gốc. Biến môi
 | `JWT_EXPIRATION` | Thời hạn JWT, mili giây | `3600000` tương đương 1 giờ |
 | `VITE_API_BASE_URL` | Địa chỉ API khi build frontend | Mặc định `/api`; đặt khi dùng API ở host khác |
 | `DEMO_ADMIN_EMAIL` | Email tài khoản demo cần cấp quyền ADMIN khi backend khởi động | Tùy chọn; tài khoản phải đã đăng ký và đang hoạt động |
+
+### Xác minh email và khôi phục mật khẩu
+
+Khách vẫn đăng nhập ngay sau khi đăng ký. Mở liên kết trong thư, đăng nhập đúng tài khoản rồi chọn **Xác minh email** trong vòng 24 giờ. Tài khoản đã tạo trước bản cập nhật có thể yêu cầu thư xác minh trong **Hồ sơ**. Mỗi địa chỉ có thể yêu cầu gửi lại sau một phút.
+
+Tại màn hình đăng nhập, chọn **Quên mật khẩu?** để nhận liên kết qua email đã xác minh. Liên kết có hiệu lực 15 phút và dùng được một lần. Khi đặt lại mật khẩu thành công, khách cần đăng nhập lại trên tất cả thiết bị.
+
+- **Docker cục bộ** tự chuyển thư đến [hộp thư thử nghiệm](http://localhost:8025). Mở địa chỉ này để xem danh sách thư dạng JSON và sao chép toàn bộ liên kết trong trường `text`, kể cả phần sau dấu `#`. Hộp thư lưu trong bộ nhớ và chỉ dùng với tài khoản thử nghiệm.
+- **Maven và Vite** dùng cùng hộp thư khi chạy dịch vụ Compose `mailbox` và bật bốn biến dành cho phát triển trong bản sao `.env` của `.env.example`.
+- **Render** gửi thư qua Resend HTTPS. Trong Environment của Web Service, đặt `RESEND_API_KEY` và `ACCOUNT_MAIL_FROM` với địa chỉ gửi thuộc tên miền đã xác minh trên Resend. Liên kết mặc định dùng `RENDER_EXTERNAL_URL`. Đặt `ACCOUNT_PUBLIC_URL` thành địa chỉ HTTPS của cửa hàng nếu dùng tên miền riêng. `ACCOUNT_MAIL_ENDPOINT` mặc định là `https://api.resend.com/emails`.
 
 ## Tài khoản và phân quyền
 
@@ -237,6 +247,8 @@ Sau `mvn verify`, chạy backend đã đóng gói với cấu hình database tro
 java -jar target/ecommerce-0.0.1-SNAPSHOT.jar
 ```
 
+Bộ kiểm thử khôi phục tài khoản kiểm tra thời hạn, gửi lại và sử dụng đồng thời trên PostgreSQL. Playwright mở liên kết từ hộp thư thử nghiệm, xác minh email, đặt lại mật khẩu và kiểm tra phiên cũ bị từ chối.
+
 ## Triển khai
 
 **Demo:** [the-tech-shop-storefront.onrender.com](https://the-tech-shop-storefront.onrender.com/)
@@ -280,6 +292,6 @@ E-Commerce/
 
 ## Phạm vi demo
 
-COD là luồng đặt hàng chính; chuyển khoản chỉ mô phỏng lựa chọn thanh toán. Cổng thanh toán, vận chuyển và email thực tế chưa được tích hợp. Dùng thông tin giao hàng minh họa khi thử đặt đơn trên demo công khai.
+COD là luồng đặt hàng chính; chuyển khoản chỉ mô phỏng lựa chọn thanh toán. Cổng thanh toán, vận chuyển và email thông báo đơn hàng chưa được tích hợp. Dùng thông tin giao hàng minh họa khi thử đặt đơn trên demo công khai.
 
 Ảnh và thông số catalog phục vụ minh họa sản phẩm. Ảnh có nguồn từ CDN và có ảnh dự phòng khi không tải được; xem [thông tin nguồn ảnh](frontend/public/catalog/photo-credits.html).

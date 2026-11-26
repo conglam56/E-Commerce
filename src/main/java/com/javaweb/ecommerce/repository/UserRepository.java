@@ -16,7 +16,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     @Modifying
-    @Query("UPDATE User u SET u.password = :newHash WHERE u.id = :id AND u.password = :currentHash AND u.status = 'ACTIVE'")
+    @Query(value = "UPDATE users SET password = :newHash, reset_hash = NULL, reset_expires = NULL "
+            + "WHERE id = :id AND password = :currentHash AND status = 'ACTIVE'", nativeQuery = true)
     int updatePassword(@Param("id") UUID id, @Param("currentHash") String currentHash,
             @Param("newHash") String newHash);
 }

@@ -5,6 +5,8 @@ import { dirname, resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
+import { createServer } from 'node:net';
+import { once } from 'node:events';
 
 const require = createRequire(import.meta.url);
 const frontendDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -95,6 +97,10 @@ async function createAdmin(baseURL, databasePort) {
 }
 
 async function main() {
+  const portProbe = createServer().listen(0, '127.0.0.1');
+  await once(portProbe, 'listening');
+  environment.E2E_APP_PORT = String(portProbe.address().port);
+  await new Promise(resolve => portProbe.close(resolve));
   let failed = true;
   try {
     console.log(`Starting isolated stack ${projectName}...`);
@@ -102,6 +108,7 @@ async function main() {
     const appPort = await publishedPort('app', 8080);
     const databasePort = await publishedPort('postgres', 5432);
     environment.E2E_BASE_URL = `http://127.0.0.1:${appPort}`;
+    environment.E2E_MAILBOX = `http://127.0.0.1:${await publishedPort('mailbox', 8025)}`;
     await waitForApplication(environment.E2E_BASE_URL);
     await createAdmin(environment.E2E_BASE_URL, databasePort);
     await run(process.execPath, [require.resolve('@playwright/test/cli'), 'test', ...process.argv.slice(2)]);

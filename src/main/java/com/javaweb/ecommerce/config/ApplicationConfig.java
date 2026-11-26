@@ -15,6 +15,7 @@ import com.javaweb.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@org.springframework.scheduling.annotation.EnableAsync
 @RequiredArgsConstructor
 public class ApplicationConfig {
 

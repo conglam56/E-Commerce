@@ -1,4 +1,11 @@
 services:
+  mailbox:
+    image: node:22-alpine
+    command: ["node", "/tools/test-mailbox.mjs"]
+    volumes:
+      - ./tools/test-mailbox.mjs:/tools/test-mailbox.mjs:ro
+    ports:
+      - "127.0.0.1::8025"
   postgres:
     image: postgres:16-alpine
     environment:
@@ -27,8 +34,12 @@ services:
       JWT_SECRET: ${E2E_JWT_SECRET:?Run npm run test:e2e from frontend}
       JWT_EXPIRATION: "3600000"
       SERVER_PORT: "8080"
+      ACCOUNT_PUBLIC_URL: http://127.0.0.1:${E2E_APP_PORT:?Run the E2E runner}
+      ACCOUNT_MAIL_ENDPOINT: http://mailbox:8025/emails
+      ACCOUNT_MAIL_FROM: shop@example.invalid
+      RESEND_API_KEY: local-mailbox-only
     ports:
-      - "127.0.0.1::8080"
+      - "127.0.0.1:${E2E_APP_PORT}:8080"
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,6 +1,7 @@
 package com.javaweb.ecommerce.service.impl;
 
 import java.nio.charset.StandardCharsets;
+import com.javaweb.ecommerce.service.AccountLinks;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+        private final AccountLinks accountLinks;
         private final JwtService jwtService;
         private final AuthenticationManager authenticationManager;
         private final UserRepository userRepository;
@@ -46,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
                                 .status("ACTIVE")
                                 .build();
                 userRepository.save(user);
+                accountLinks.requestVerification(user.getEmail());
                 String token = jwtService.generateToken(user);
                 AuthResponse response = AuthResponse.builder()
                                 .token(token)
@@ -55,12 +58,11 @@ public class AuthServiceImpl implements AuthService {
 
         @Override
         public AuthResponse login(LoginRequest loginRequest) {
-                authenticationManager.authenticate(
+                var authentication = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(
                                                 loginRequest.email(),
                                                 loginRequest.password()));
-                User user = userRepository.findByEmail(loginRequest.email())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+                User user = (User) authentication.getPrincipal();
                 String token = jwtService.generateToken(user);
                 AuthResponse response = AuthResponse.builder()
                                 .token(token)

@@ -26,6 +26,12 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+account:
+  public-url: ${ACCOUNT_PUBLIC_URL:${RENDER_EXTERNAL_URL:http://localhost:5173}}
+  mail:
+    endpoint: ${ACCOUNT_MAIL_ENDPOINT:https://api.resend.com/emails}
+    key: ${RESEND_API_KEY:}
+    from: ${ACCOUNT_MAIL_FROM:}
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}

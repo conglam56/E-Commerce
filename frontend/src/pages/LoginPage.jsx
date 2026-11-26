@@ -8,7 +8,8 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const destination = location.state?.from;
+  const from = destination ? destination.pathname + (destination.hash || '') : '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -96,6 +97,7 @@ export default function LoginPage() {
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </form>
+        <Link to="/forgot-password" className="mt-4 inline-block text-sm underline">Quên mật khẩu?</Link>
 
         <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
           Chưa có tài khoản?{' '}

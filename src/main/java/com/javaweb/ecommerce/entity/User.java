@@ -35,6 +35,10 @@ public class User implements UserDetails {
     private String fullName;
     private String role;
     private String status;
+    @jakarta.persistence.Column(insertable = false, updatable = false)
+    private boolean emailVerified;
+    @jakarta.persistence.Column(insertable = false, updatable = false)
+    private int sessionVersion;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

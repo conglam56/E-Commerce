@@ -28,6 +28,7 @@ public class JwtService {
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("sv", user.getSessionVersion());
         claims.put("roles", user.getAuthorities());
         claims.put("fullName", user.getFullName());
         return createToken(claims, user.getUsername());
@@ -66,8 +67,11 @@ public class JwtService {
     }
 
     public Boolean validateToken(String token, UserDetails user) {
-        String userName = extractUsername(token);
-        return (userName.equals(user.getUsername()) && !isTokenExpired(token));
+        Claims claims = extractAllClaims(token);
+        Integer version = claims.get("sv", Integer.class);
+        return user instanceof User account && claims.getSubject().equals(account.getUsername())
+                && account.getSessionVersion() == (version == null ? 0 : version)
+                && claims.getExpiration().after(new Date());
     }
 
     public Boolean isTokenExpired(String token) {

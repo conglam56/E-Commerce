@@ -6,6 +6,7 @@ import BrandWordmark from './components/BrandWordmark';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import HomePage from './pages/HomePage';
+import AccountLinkPage from './pages/AccountLinkPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -51,6 +52,9 @@ export default function App() {
               <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<AccountLinkPage key="forgot" />} />
+              <Route path="/reset-password" element={<AccountLinkPage key="reset" />} />
+              <Route path="/verify-email" element={<ProtectedRoute><AccountLinkPage key="verify" /></ProtectedRoute>} />
 
               <Route
                 path="/profile"

@@ -9,7 +9,7 @@ public class StorefrontConfig implements WebMvcConfigurer {
 
     public static final String[] PAGE_ROUTES = {
             "/login", "/register", "/profile", "/cart", "/checkout", "/orders",
-            "/products/{id}", "/admin/products", "/admin/orders"
+            "/products/{id}", "/admin/products", "/admin/orders", "/verify-email", "/forgot-password", "/reset-password"
     };
 
     @Override
