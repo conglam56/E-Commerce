@@ -205,6 +205,7 @@ UPDATE users SET role = 'ADMIN' WHERE email = 'your-demo-admin@example.com';
 | Chạy unit test, test tích hợp PostgreSQL và đóng gói | `mvn -Pintegration verify` | Gốc repository |
 | Cài dependency frontend | `npm ci` | `frontend` |
 | Build frontend | `npm run build` | `frontend` |
+| Chạy test giao diện với backend và PostgreSQL thật | `npm run test:e2e` | `frontend` |
 
 Test backend dùng JUnit và Mockito, không cần database cho `mvn test`. Các test kiểm tra xác thực, điều kiện đăng ký, cấp quyền admin demo, giỏ hàng, quy trình đặt/hủy đơn và xung đột tồn kho.
 
@@ -214,7 +215,21 @@ Các test tích hợp kiểm tra đặt đơn và lưu giá mua, rollback khi th
 
 `mvn test` và `mvn verify` không yêu cầu Docker; dùng `mvn -Pintegration verify` để chạy thêm test tích hợp. Khi đã bật profile `integration`, thiếu Docker hoặc test tích hợp thất bại sẽ làm build thất bại, không tự bỏ qua test.
 
-[GitHub Actions](.github/workflows/ci.yml) chạy `mvn -Pintegration verify` và build frontend cho mỗi push hoặc pull request.
+Test giao diện dùng Playwright Test (JavaScript) với Chromium. Cài dependency và trình duyệt lần đầu từ thư mục `frontend`:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run test:e2e
+```
+
+Trên Linux, dùng `npx playwright install --with-deps chromium` để cài thêm thư viện hệ thống. Cần Docker Engine chạy Linux containers. Lệnh E2E build ứng dụng bằng `Dockerfile.render`, chạy cùng PostgreSQL riêng qua `compose.e2e.yml`, dùng tên project và cổng localhost ngẫu nhiên rồi dọn container sau khi chạy. Database nằm trong bộ nhớ tạm của container; không dùng volume, database hoặc `.env` phát triển. Mật khẩu test và khóa JWT sinh ngẫu nhiên, chỉ truyền qua môi trường của tiến trình.
+
+Các ca E2E kiểm tra đăng ký, đăng xuất/đăng nhập, cập nhật giỏ hàng, đặt COD và hủy đơn; chuyển khách chưa đăng nhập tới trang đăng nhập; chặn khách hàng tại trang/API quản trị; admin cập nhật trạng thái đơn; và ngăn người khác xem/hủy đơn không thuộc tài khoản mình. API và database đều chạy thật. Chỉ bước chuẩn bị cấp quyền admin cập nhật database test bằng truy vấn có tham số.
+
+Báo cáo nằm ở `frontend/playwright-report`; screenshot và trace được giữ lại khi test lỗi trong `frontend/test-results`. Xem báo cáo bằng `npx playwright show-report` từ `frontend`. Có thể chạy một ca bằng `npm run test:e2e -- --grep "customer registers"`. Bộ E2E hiện kiểm tra Chromium trên desktop.
+
+[GitHub Actions](.github/workflows/ci.yml) chạy `mvn -Pintegration verify`, build frontend và chạy E2E cho mỗi push hoặc pull request; báo cáo Playwright được lưu làm artifact trong 7 ngày.
 
 Sau `mvn verify`, chạy backend đã đóng gói với cấu hình database trong `.env`:
 
