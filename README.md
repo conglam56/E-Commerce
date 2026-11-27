@@ -30,6 +30,7 @@ The Tech Shop là dự án thương mại điện tử full-stack dành cho thi�
 
 - [Tính năng](#tính-năng)
 - [Giao diện](#giao-diện)
+- [Kịch bản demo 5 phút](#kịch-bản-demo-5-phút)
 - [Công nghệ và kiến trúc](#công-nghệ-và-kiến-trúc)
 - [Chạy nhanh](#chạy-nhanh)
 - [Phát triển cục bộ](#phát-triển-cục-bộ)
@@ -46,14 +47,15 @@ The Tech Shop là dự án thương mại điện tử full-stack dành cho thi�
 | --- | --- |
 | **Cửa hàng** | Sản phẩm nổi bật, tìm kiếm, lọc danh mục, sắp xếp giá và phân trang phía server |
 | **Chi tiết sản phẩm** | Thư viện ảnh, mô tả, thông số tham khảo, giá và tồn kho; nhập số lượng trực tiếp hoặc dùng nút tăng/giảm |
-| **Tài khoản** | Đăng ký, đăng nhập bằng JWT, avatar chữ cái và hồ sơ cá nhân |
-| **Mật khẩu** | Kiểm tra ngay khi nhập ở đăng ký và đổi mật khẩu; tối thiểu 6 ký tự, xác nhận mật khẩu và kiểm tra mật khẩu hiện tại ở server |
+| **Tài khoản** | Đăng ký, đăng nhập bằng JWT, avatar chữ cái, hồ sơ cá nhân và xác minh email |
+| **Mật khẩu** | Kiểm tra ngay khi nhập ở đăng ký và đổi mật khẩu, tối thiểu 6 ký tự, xác nhận mật khẩu và kiểm tra mật khẩu hiện tại ở server. Khôi phục qua liên kết email dùng một lần |
 | **Giỏ hàng** | Thêm, cập nhật số lượng, xóa sản phẩm và tính tổng tiền ở backend |
-| **Đơn hàng** | Đặt hàng COD, xem lịch sử và chi tiết đơn, hủy đơn đủ điều kiện |
-| **Quản trị** | Quản lý sản phẩm, danh mục và cập nhật trạng thái đơn hàng; kiểm tra quyền ADMIN tại API |
+| **Đơn hàng** | Đặt hàng COD, xem lịch sử và chi tiết đơn, hủy đơn đủ điều kiện, xem hãng vận chuyển và mã vận đơn do admin nhập |
+| **Thanh toán** | VNPay Sandbox với kiểm tra chữ ký, số tiền và thông báo IPN trùng, quản lý hết hạn thanh toán và hoàn kho |
+| **Quản trị** | Quản lý sản phẩm, danh mục và trạng thái đơn. Tổng quan doanh thu đơn đã giao, cảnh báo tồn kho tối đa 5 và lịch sử trạng thái. Kiểm tra quyền ADMIN tại API |
 | **Toàn vẹn dữ liệu** | Transaction khi đặt/hủy đơn, lưu giá tại thời điểm đặt, trừ/hoàn tồn kho và optimistic locking để phát hiện xung đột |
 
-Luồng đơn hàng: `PENDING → CONFIRMED → SHIPPED → DELIVERED`. Khách hàng có thể hủy đơn `PENDING`; quản trị viên có thể hủy đơn `PENDING` hoặc `CONFIRMED`. Hủy thành công sẽ hoàn lại tồn kho.
+Luồng đơn hàng: `PENDING → CONFIRMED → SHIPPED → DELIVERED`. Khách hàng có thể hủy đơn `PENDING`; quản trị viên có thể hủy đơn `PENDING` hoặc `CONFIRMED`. Đơn VNPay đã ghi nhận thanh toán cần được đối soát trước khi hủy. Hủy thành công sẽ hoàn lại tồn kho.
 
 ## Giao diện
 
@@ -67,6 +69,30 @@ Các ảnh bên dưới và ảnh trang chủ phía trên được chụp từ g
 
 [Xem giao diện đặt hàng trên điện thoại](docs/screenshots/checkout-mobile.png)
 
+Ảnh Tổng quan và lịch sử dưới đây được chụp từ ứng dụng chạy cục bộ với các đơn COD và thông tin minh họa.
+
+| Tổng quan vận hành | Lịch sử trạng thái và vận đơn |
+| --- | --- |
+| ![Tổng quan admin với doanh thu đơn đã giao, số đơn theo trạng thái và cảnh báo tồn kho](docs/screenshots/admin-dashboard.png) | ![Đơn đang giao với mã vận đơn và lịch sử chuyển trạng thái](docs/screenshots/order-status-history.png) |
+
+[Xem trang Tổng quan trên điện thoại](docs/screenshots/admin-dashboard-mobile.png)
+
+## Kịch bản demo 5 phút
+
+Chạy ứng dụng cục bộ theo [Chạy nhanh](#chạy-nhanh). Chuẩn bị một tài khoản khách và một tài khoản [ADMIN](#tài-khoản-và-phân-quyền) trong hai cửa sổ trình duyệt riêng. Đặt tên người nhận là **ĐƠN DEMO – HỦY SAU TRÌNH BÀY** và dùng thông tin giao hàng minh họa.
+
+Trước buổi trình bày, chuẩn bị một đơn COD đã giao và ba sản phẩm có tồn kho lần lượt 0, 3 và 5 qua trang quản trị. Các dữ liệu này giúp minh họa doanh thu và cảnh báo như trong ảnh Tổng quan.
+
+| Thời gian | Thao tác | Kết quả cần thấy |
+| --- | --- | --- |
+| 0:00–0:45 | Giới thiệu cửa hàng, tìm sản phẩm và mở trang chi tiết | Giá, số lượng còn hàng và nội dung sản phẩm tải từ API |
+| 0:45–2:00 | Tài khoản khách thêm một sản phẩm vào giỏ, nhập thông tin minh họa và đặt COD | Đơn mới ở trạng thái Chờ xác nhận. Giỏ được làm trống và tồn kho giảm một |
+| 2:00–3:00 | Tài khoản ADMIN mở Tổng quan, rồi mở Lịch sử trạng thái của đơn vừa đặt | Số đơn chờ xác nhận tăng, lịch sử có mốc Tạo đơn. Cảnh báo tồn kho và doanh thu từ dữ liệu đã chuẩn bị hiển thị |
+| 3:00–4:00 | Tài khoản khách hủy đơn demo, ADMIN làm mới lịch sử và Tổng quan | Lịch sử có Chờ xác nhận → Đã hủy. Tồn kho được hoàn lại và đơn đã hủy được loại khỏi doanh thu đơn đã giao |
+| 4:00–5:00 | Mở báo cáo Playwright và giới thiệu các ca PostgreSQL | Đối chiếu luồng vừa trình bày với test đặt/hủy đơn, rollback, tranh sản phẩm cuối, IPN trùng và múi giờ trình duyệt |
+
+Trong phần hỏi đáp, có thể dùng [xác minh email và khôi phục tài khoản](#xác-minh-email-và-khôi-phục-mật-khẩu), [VNPay Sandbox và vận đơn](#thanh-toán-thử-nghiệm-và-vận-đơn), hoặc [công cụ vận hành admin](#công-cụ-vận-hành-admin) để giải thích thêm. Khi trình bày VNPay, chuẩn bị credential merchant Sandbox và dữ liệu thanh toán thử nghiệm theo phần cấu hình.
+
 ## Công nghệ và kiến trúc
 
 | Thành phần | Công nghệ |
@@ -74,7 +100,7 @@ Các ảnh bên dưới và ảnh trang chủ phía trên được chụp từ g
 | Frontend | React 18, React Router, Vite 6, Tailwind CSS 4, Axios, Lucide |
 | Backend | Java 17, Spring Boot 3.2, Spring Security, JWT, BCrypt |
 | Dữ liệu | PostgreSQL 16, Spring Data JPA, Flyway, MapStruct |
-| Kiểm thử | JUnit 5, Mockito |
+| Kiểm thử | JUnit 5, Mockito, Testcontainers với PostgreSQL thật, Playwright trên Chromium |
 | CI / Triển khai | GitHub Actions, Docker multi-stage, Render |
 
 ```mermaid
