@@ -1,5 +1,9 @@
 package com.javaweb.ecommerce.mapper;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -14,6 +18,11 @@ public interface OrderMapper {
     @Mapping(source = "items", target = "items")
     @Mapping(target = "paymentInstruction", expression = "java(generatePaymentInstruction(order))")
     OrderResponse toResponse(Order order);
+
+    // Order lifecycle timestamps are stored as wall time in the JVM's timezone.
+    default OffsetDateTime toOffsetDateTime(LocalDateTime value) {
+        return value == null ? null : value.atZone(ZoneId.systemDefault()).toOffsetDateTime();
+    }
 
     default String generatePaymentInstruction(Order order) {
         if (order.getPaymentMethod() == PaymentMethod.BANK_TRANSFER) {

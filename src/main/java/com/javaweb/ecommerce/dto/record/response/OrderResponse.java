@@ -2,6 +2,7 @@ package com.javaweb.ecommerce.dto.record.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,8 +27,8 @@ public record OrderResponse(
         String receiverName,
         List<OrderItemResponse> items,
         String paymentInstruction,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt) {
 
 }
 
