@@ -249,6 +249,22 @@ java -jar target/ecommerce-0.0.1-SNAPSHOT.jar
 
 Bộ kiểm thử khôi phục tài khoản kiểm tra thời hạn, gửi lại và sử dụng đồng thời trên PostgreSQL. Playwright mở liên kết từ hộp thư thử nghiệm, xác minh email, đặt lại mật khẩu và kiểm tra phiên cũ bị từ chối.
 
+## Thanh toán thử nghiệm và vận đơn
+
+VNPay Sandbox xuất hiện trong trang đặt hàng khi backend có `VNPAY_TMN_CODE` và `VNPAY_HASH_SECRET`. Lấy hai giá trị từ tài khoản merchant Sandbox của bạn và đặt trong `.env` hoặc Environment của Render. Đặt `ACCOUNT_PUBLIC_URL` thành địa chỉ cửa hàng. Khi dùng Docker cục bộ, Compose truyền hai biến VNPay vào backend.
+
+Đăng ký URL thông báo IPN với VNPay bằng địa chỉ HTTPS `https://<ten-mien-cua-hang>/api/payments/vnpay/ipn`. URL quay về là `https://<ten-mien-cua-hang>/orders`. Máy chủ nhận IPN phải được VNPay truy cập từ Internet. Tham khảo [tài liệu tích hợp VNPay](https://sandbox.vnpayment.vn/apis/docs/thanh-toan-pay/pay.html).
+
+Sau khi đặt đơn VNPay, khách có 15 phút để thanh toán qua nút trong đơn vừa đặt hoặc **Đơn hàng của tôi**. Số tiền lấy từ đơn đã lưu trên server. Chỉ IPN có chữ ký HMAC-SHA512 hợp lệ, đúng merchant và đúng số tiền mới ghi nhận kết quả. Tham số trả về trên trình duyệt dùng để điều hướng về danh sách đơn.
+
+Thông báo thành công chuyển đơn sang **Đã xác nhận** và **Đã thanh toán**. Thông báo lặp được nhận diện dưới khóa database để bảo đảm chỉ cập nhật một lần. Đơn thanh toán thất bại được hủy và hoàn kho. Tác vụ chạy mỗi phút xử lý tối đa 20 đơn quá hạn và hoàn kho một lần cho mỗi đơn. Đơn quá hạn được cập nhật khi tác vụ định kỳ xử lý đến đơn đó.
+
+Nếu thành công thanh toán đến sau khi đơn đã hủy hoặc ngoài thời hạn, đơn được đánh dấu **Cần đối soát thanh toán với cửa hàng**. Admin đối chiếu giao dịch ở VNPay trước khi xử lý. Đơn VNPay đã trả tiền được chặn hủy qua API hiện tại, vì việc hủy cần đi cùng quy trình hoàn tiền.
+
+Trong **Quản lý đơn hàng**, admin nhập hãng vận chuyển và mã vận đơn cho đơn đã xác nhận hoặc đang giao. Khách xem thông tin này trong đơn của mình. Dữ liệu đơn cũ tiếp tục hiển thị bình thường. Vận đơn được admin cập nhật thủ công, còn phí giao hàng của demo đang là miễn phí.
+
+Test `VnpayPostgresIT` kiểm tra IPN đồng thời, chữ ký và số tiền sai, hoàn kho, hết hạn và thanh toán đến sau hủy. E2E dùng khóa ngẫu nhiên cho stack riêng, ký IPN giả lập bằng Node.js để kiểm tra backend, xác thực URL thanh toán và chạy giao diện lưu vận đơn. Khi chạy với credential VNPay Sandbox thật, cần kiểm tra thêm giao dịch qua trang ngân hàng thử nghiệm và IPN do VNPay gửi.
+
 ## Triển khai
 
 **Demo:** [the-tech-shop-storefront.onrender.com](https://the-tech-shop-storefront.onrender.com/)
@@ -292,6 +308,6 @@ E-Commerce/
 
 ## Phạm vi demo
 
-COD là luồng đặt hàng chính; chuyển khoản chỉ mô phỏng lựa chọn thanh toán. Cổng thanh toán, vận chuyển và email thông báo đơn hàng chưa được tích hợp. Dùng thông tin giao hàng minh họa khi thử đặt đơn trên demo công khai.
+COD là luồng đặt hàng chính; chuyển khoản thủ công chỉ mô phỏng lựa chọn thanh toán. VNPay được tích hợp ở môi trường Sandbox và cần credential merchant để bật. Vận đơn được quản lý thủ công. Đặt vận chuyển qua API hãng giao hàng, hoàn tiền tự động và email thông báo đơn hàng là những phần còn cần tích hợp. Dùng thông tin giao hàng minh họa khi thử đặt đơn trên demo công khai.
 
 Ảnh và thông số catalog phục vụ minh họa sản phẩm. Ảnh có nguồn từ CDN và có ảnh dự phòng khi không tải được; xem [thông tin nguồn ảnh](frontend/public/catalog/photo-credits.html).

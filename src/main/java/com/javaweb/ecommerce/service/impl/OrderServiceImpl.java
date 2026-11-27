@@ -20,6 +20,8 @@ import com.javaweb.ecommerce.entity.OrderItem;
 import com.javaweb.ecommerce.entity.Product;
 import com.javaweb.ecommerce.entity.User;
 import com.javaweb.ecommerce.entity.enums.OrderStatus;
+import com.javaweb.ecommerce.entity.enums.PaymentMethod;
+import com.javaweb.ecommerce.entity.enums.PaymentStatus;
 import com.javaweb.ecommerce.exception.EmptyCartException;
 import com.javaweb.ecommerce.exception.InsufficientStockException;
 import com.javaweb.ecommerce.exception.InvalidOrderStateException;
@@ -148,6 +150,11 @@ public class OrderServiceImpl implements OrderService {
                     "Chỉ có thể hủy đơn hàng ở trạng thái PENDING. Trạng thái hiện tại: " + order.getStatus());
         }
 
+        if (order.getPaymentMethod() == PaymentMethod.VNPAY
+                && order.getPaymentStatus() != PaymentStatus.UNPAID) {
+            throw new InvalidOrderStateException("Đơn đã ghi nhận thanh toán cần được đối soát trước khi hủy.");
+        }
+
         // Refund inventory
         for (OrderItem item : order.getItems()) {
             Product product = item.getProduct();
@@ -187,6 +194,15 @@ public class OrderServiceImpl implements OrderService {
 
         if (currentStatus == OrderStatus.CANCELLED) {
             throw new InvalidOrderStateException("Đơn hàng đã bị hủy, không thể thay đổi trạng thái");
+        }
+
+        if (order.getPaymentMethod() == PaymentMethod.VNPAY) {
+            if (newStatus == OrderStatus.CANCELLED
+                    && order.getPaymentStatus() != PaymentStatus.UNPAID)
+                throw new InvalidOrderStateException("Đơn đã ghi nhận thanh toán cần được đối soát trước khi hủy.");
+            if (newStatus != OrderStatus.CANCELLED
+                    && order.getPaymentStatus() != PaymentStatus.PAID)
+                throw new InvalidOrderStateException("Cần xác nhận thanh toán trước khi xử lý giao hàng.");
         }
 
         boolean allowed = switch (currentStatus) {

@@ -22,6 +22,7 @@ public interface OrderMapper {
                     order.getTotalAmount().toPlainString(),
                     order.getId().toString().substring(0, 8).toUpperCase());
         }
+        if (order.getPaymentMethod() == PaymentMethod.VNPAY) return "Thanh toán qua VNPay Sandbox.";
         return "Thanh toán tiền mặt khi nhận hàng (COD).";
     }
 }

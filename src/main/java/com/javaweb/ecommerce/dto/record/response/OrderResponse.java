@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.javaweb.ecommerce.entity.enums.OrderStatus;
 import com.javaweb.ecommerce.entity.enums.PaymentMethod;
+import com.javaweb.ecommerce.entity.enums.PaymentStatus;
 
 import lombok.Builder;
 
@@ -16,6 +17,10 @@ public record OrderResponse(
         BigDecimal totalAmount,
         OrderStatus status,
         PaymentMethod paymentMethod,
+        PaymentStatus paymentStatus,
+        LocalDateTime paymentExpiresAt,
+        String shippingCarrier,
+        String trackingNumber,
         String shippingAddress,
         String phoneNumber,
         String receiverName,

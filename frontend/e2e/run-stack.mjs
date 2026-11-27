@@ -17,6 +17,7 @@ const environment = {
   ...process.env,
   E2E_DB_PASSWORD: randomBytes(24).toString('hex'),
   E2E_JWT_SECRET: randomBytes(48).toString('base64'),
+  E2E_VNPAY_SECRET: randomBytes(32).toString('hex'),
   E2E_ADMIN_EMAIL: `${projectName}@example.invalid`,
   E2E_ADMIN_PASSWORD: randomBytes(24).toString('hex'),
 };

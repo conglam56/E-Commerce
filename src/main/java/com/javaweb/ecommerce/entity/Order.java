@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.javaweb.ecommerce.entity.enums.OrderStatus;
 import com.javaweb.ecommerce.entity.enums.PaymentMethod;
+import com.javaweb.ecommerce.entity.enums.PaymentStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -64,6 +65,18 @@ public class Order {
     @Column(name = "payment_method", nullable = false, length = 50)
     private PaymentMethod paymentMethod;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    @Builder.Default
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+    private LocalDateTime paymentExpiresAt;
+    @Column(length = 64)
+    private String paymentTransaction;
+    @Column(length = 80)
+    private String shippingCarrier;
+    @Column(length = 100)
+    private String trackingNumber;
+
     @Column(name = "shipping_address", nullable = false, columnDefinition = "TEXT")
     private String shippingAddress;
 
@@ -86,6 +99,7 @@ public class Order {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (paymentMethod == PaymentMethod.VNPAY) paymentExpiresAt = LocalDateTime.now(java.time.ZoneOffset.UTC).plusMinutes(15);
         this.updatedAt = LocalDateTime.now();
     }
 

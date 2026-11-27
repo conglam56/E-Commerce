@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import ProductImage from '../components/ProductImage';
+import OrderPayment from '../components/OrderPayment';
 import { formatCurrencyVND, formatDateTime } from '../utils/format';
 import { ORDER_STATUS, paymentLabel } from '../utils/orders';
 
@@ -201,6 +202,10 @@ export default function MyOrdersPage() {
                     </dd>
                   </div>
                 </dl>
+                {order.trackingNumber && <p className="text-sm">
+                  Vận đơn {order.shippingCarrier} · {order.trackingNumber}
+                </p>}
+                <OrderPayment order={order} allowPayment />
                 {order.status === 'PENDING' &&
                   (confirmId === order.id ? (
                     <div className="space-y-2 rounded-md border border-slate-200 bg-white p-3">

@@ -21,6 +21,7 @@ export const NEXT_ORDER_STATUS = {
 };
 
 export function paymentLabel(method) {
+  if (method === 'VNPAY') return 'VNPay Sandbox';
   return method === 'BANK_TRANSFER'
     ? 'Chuyển khoản (mô phỏng)'
     : 'Thanh toán khi nhận hàng';

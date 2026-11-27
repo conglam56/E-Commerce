@@ -16,6 +16,7 @@ import com.javaweb.ecommerce.common.BaseController;
 import com.javaweb.ecommerce.dto.record.request.CheckoutRequest;
 import com.javaweb.ecommerce.dto.record.response.OrderResponse;
 import com.javaweb.ecommerce.service.OrderService;
+import com.javaweb.ecommerce.service.VnpayPayments;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +27,11 @@ import lombok.RequiredArgsConstructor;
 public class OrderController extends BaseController {
 
     private final OrderService orderService;
+    private final VnpayPayments payments;
 
     @PostMapping("/checkout")
     public ApiResponse<OrderResponse> checkout(@Valid @RequestBody CheckoutRequest request) {
+        payments.requireAvailable(request.paymentMethod());
         return success(orderService.checkout(request));
     }
 

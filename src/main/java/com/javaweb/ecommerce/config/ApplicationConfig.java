@@ -2,6 +2,7 @@ package com.javaweb.ecommerce.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,6 +16,7 @@ import com.javaweb.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableScheduling
 @org.springframework.scheduling.annotation.EnableAsync
 @RequiredArgsConstructor
 public class ApplicationConfig {

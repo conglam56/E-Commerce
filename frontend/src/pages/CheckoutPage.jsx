@@ -4,6 +4,7 @@ import { ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import { useAuth } from '../context/AuthContext';
 import ProductImage from '../components/ProductImage';
+import OrderPayment from '../components/OrderPayment';
 import { formatCurrencyVND } from '../utils/format';
 import { paymentLabel } from '../utils/orders';
 
@@ -16,6 +17,7 @@ export default function CheckoutPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [vnpayAvailable, setVnpayAvailable] = useState(false);
   const [error, setError] = useState('');
   const [loadError, setLoadError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
@@ -30,10 +32,12 @@ export default function CheckoutPage() {
     setLoading(true);
     setLoadError('');
     if (loadingCart) return;
-    axiosClient
-      .get('/cart')
-      .then((res) => {
-        if (active) setCart(res.data);
+    Promise.all([axiosClient.get('/cart'), axiosClient.get('/payments/vnpay/availability')])
+      .then(([res, payment]) => {
+        if (active) {
+          setCart(res.data);
+          setVnpayAvailable(payment.data);
+        }
       })
       .catch((err) => {
         if (active) setLoadError(err.message);
@@ -128,6 +132,7 @@ export default function CheckoutPage() {
               </dd>
             </div>
           </dl>
+          <OrderPayment order={createdOrder} allowPayment />
           {createdOrder.paymentMethod === 'BANK_TRANSFER' && (
             <p className="rounded-md bg-amber-50 p-3 text-sm leading-relaxed text-amber-900">
               Đây là lựa chọn chuyển khoản mô phỏng trong bản demo. Không chuyển
@@ -327,6 +332,7 @@ export default function CheckoutPage() {
                 'Chuyển khoản (mô phỏng)',
                 'Dùng để demo lựa chọn thanh toán, không chuyển tiền.',
               ],
+              ...(vnpayAvailable ? [['VNPAY', 'VNPay Sandbox', 'Thanh toán thử nghiệm trong vòng 15 phút.']] : []),
             ].map(([value, label, description]) => (
               <label
                 key={value}

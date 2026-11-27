@@ -33,6 +33,8 @@ services:
       DB_PASSWORD: ${E2E_DB_PASSWORD:?Run npm run test:e2e from frontend}
       JWT_SECRET: ${E2E_JWT_SECRET:?Run npm run test:e2e from frontend}
       JWT_EXPIRATION: "3600000"
+      VNPAY_TMN_CODE: E2ETEST1
+      VNPAY_HASH_SECRET: ${E2E_VNPAY_SECRET:?Run the E2E runner}
       SERVER_PORT: "8080"
       ACCOUNT_PUBLIC_URL: http://127.0.0.1:${E2E_APP_PORT:?Run the E2E runner}
       ACCOUNT_MAIL_ENDPOINT: http://mailbox:8025/emails

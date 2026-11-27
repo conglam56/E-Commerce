@@ -6,6 +6,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
+import ShipmentForm from '../components/ShipmentForm';
+import OrderPayment from '../components/OrderPayment';
 import { formatCurrencyVND, formatDateTime } from '../utils/format';
 import { NEXT_ORDER_STATUS, ORDER_STATUS, paymentLabel } from '../utils/orders';
 
@@ -197,6 +199,12 @@ export default function AdminOrdersPage() {
                 </strong>
               </div>
               <div className="space-y-3">
+                <OrderPayment order={order} />
+                <ShipmentForm key={order.id + '-' + order.trackingNumber} order={order}
+                  onSaved={updatedOrder => {
+                    setNotice({ type: 'success', text: 'Đã lưu vận đơn.' });
+                    setOrders(current => current.map(item => item.id === updatedOrder.id ? updatedOrder : item));
+                  }} />
                 <span
                   className={`inline-flex rounded px-2 py-1 text-xs font-semibold ${ORDER_STATUS[order.status].className}`}
                 >
