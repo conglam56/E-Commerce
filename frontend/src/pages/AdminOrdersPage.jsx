@@ -8,6 +8,7 @@ import {
 import axiosClient from '../api/axiosClient';
 import ShipmentForm from '../components/ShipmentForm';
 import OrderPayment from '../components/OrderPayment';
+import OrderStatusHistory from '../components/OrderStatusHistory';
 import { formatCurrencyVND, formatDateTime } from '../utils/format';
 import { NEXT_ORDER_STATUS, ORDER_STATUS, paymentLabel } from '../utils/orders';
 
@@ -199,6 +200,7 @@ export default function AdminOrdersPage() {
                 </strong>
               </div>
               <div className="space-y-3">
+                <OrderStatusHistory orderId={order.id} />
                 <OrderPayment order={order} />
                 <ShipmentForm key={order.id + '-' + order.trackingNumber} order={order}
                   onSaved={updatedOrder => {

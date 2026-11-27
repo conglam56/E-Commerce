@@ -16,6 +16,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import MyOrdersPage from './pages/MyOrdersPage';
 import AdminProductsPage from './pages/AdminProductsPage';
 import AdminOrdersPage from './pages/AdminOrdersPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 
 const footerLink =
   'inline-flex min-h-7 items-center text-xs text-[#515154] transition-colors duration-150 hover:text-[#1D1D1F] hover:underline underline-offset-4';
@@ -55,6 +56,7 @@ export default function App() {
               <Route path="/forgot-password" element={<AccountLinkPage key="forgot" />} />
               <Route path="/reset-password" element={<AccountLinkPage key="reset" />} />
               <Route path="/verify-email" element={<ProtectedRoute><AccountLinkPage key="verify" /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboardPage /></ProtectedRoute>} />
 
               <Route
                 path="/profile"

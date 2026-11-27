@@ -265,6 +265,24 @@ Trong **Quản lý đơn hàng**, admin nhập hãng vận chuyển và mã vậ
 
 Test `VnpayPostgresIT` kiểm tra IPN đồng thời, chữ ký và số tiền sai, hoàn kho, hết hạn và thanh toán đến sau hủy. E2E dùng khóa ngẫu nhiên cho stack riêng, ký IPN giả lập bằng Node.js để kiểm tra backend, xác thực URL thanh toán và chạy giao diện lưu vận đơn. Khi chạy với credential VNPay Sandbox thật, cần kiểm tra thêm giao dịch qua trang ngân hàng thử nghiệm và IPN do VNPay gửi.
 
+## Công cụ vận hành admin
+
+Admin mở **Tổng quan** trên thanh điều hướng để xem doanh thu, số đơn đã giao, số đơn theo từng trạng thái và sản phẩm cần bổ sung tồn kho. Nút **Làm mới** tải lại dữ liệu.
+
+- Doanh thu là tổng `orders.total_amount` của toàn bộ đơn hiện có trạng thái `DELIVERED`, trên toàn bộ thời gian. Mỗi đơn được tính một lần bằng giá trị đã lưu khi đặt hàng. Các đơn thử nghiệm, gồm VNPay Sandbox và chuyển khoản mô phỏng, cũng được tính khi đã giao.
+- Cảnh báo tồn kho gồm sản phẩm đang hoạt động, thuộc danh mục đang hoạt động và có số lượng tối đa **5**, bao gồm số lượng bằng 0. Danh sách sắp theo tồn kho tăng dần và có phân trang.
+- Trong **Quản lý đơn hàng**, mở **Lịch sử trạng thái** trên từng đơn để xem các thay đổi mới nhất và thời điểm ghi nhận. Lịch sử lưu trạng thái trước/sau và thời điểm, với 20 bản ghi mỗi trang.
+
+Migration V12 ghi một mốc **Trạng thái khi bật lịch sử** cho mỗi đơn cũ tại thời điểm nâng cấp. Từ đó, trigger PostgreSQL tự ghi việc tạo đơn và những lần trạng thái thay đổi, bao gồm thao tác của admin, khách hàng và hệ thống thanh toán. Bản ghi lịch sử được lưu cùng transaction với thay đổi đơn hàng. Cập nhật lặp lại cùng trạng thái và cập nhật vận đơn giữ nguyên trạng thái sẽ giữ nguyên lịch sử. [Cơ chế trigger PostgreSQL](https://www.postgresql.org/docs/16/plpgsql-trigger.html).
+
+API mới nằm dưới quyền admin:
+
+- `GET /api/admin/operations` trả số liệu tổng quan.
+- `GET /api/admin/operations/low-stock?page=0&size=20` trả sản phẩm sắp hết hàng.
+- `GET /api/admin/orders/{id}/history?page=0&size=20` trả lịch sử trạng thái.
+
+Hai API phân trang nhận `page >= 0`, `1 <= size <= 100`. Bộ tích hợp kiểm tra số liệu đối chiếu, tồn kho ở biên cảnh báo, rollback, cập nhật đồng thời và nâng cấp từ schema V11 có dữ liệu cũ. E2E kiểm tra giao diện desktop/mobile, phân quyền và lịch sử từ callback VNPay.
+
 ## Triển khai
 
 **Demo:** [the-tech-shop-storefront.onrender.com](https://the-tech-shop-storefront.onrender.com/)

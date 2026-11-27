@@ -61,6 +61,9 @@ export default function Navbar() {
           )}
           {isAdmin && (
             <>
+              <NavLink to="/admin" end className={navLinkClass}>
+                Tổng quan
+              </NavLink>
               <NavLink to="/admin/products" className={navLinkClass}>
                 Quản lý sản phẩm
               </NavLink>
