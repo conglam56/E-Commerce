@@ -68,6 +68,11 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.025);
 }
 
+button,
+.shop-button {
+  text-decoration: none;
+}
+
 .shop-button {
   display: inline-flex;
   min-height: 44px;
